@@ -1,4 +1,4 @@
-import { type MarkdownString, type LogOutputChannel, Uri } from 'vscode'
+import { type MarkdownString, type LogOutputChannel, Uri, window, type QuickPickItem } from 'vscode'
 import {
 	execFile as execFileCb,
 	type ExecFileException,
@@ -6,6 +6,8 @@ import {
 } from 'node:child_process'
 import { promisify } from 'node:util'
 import type {
+	CreateEnvironmentOptions,
+	CreateEnvironmentScope,
 	EnvironmentManager,
 	GetEnvironmentScope,
 	GetEnvironmentsScope,
@@ -13,6 +15,7 @@ import type {
 	PythonEnvironment,
 	PythonEnvironmentApi,
 	PythonProject,
+	QuickCreateConfig,
 	RefreshEnvironmentsScope,
 	ResolveEnvironmentContext,
 	SetEnvironmentScope,
@@ -37,16 +40,29 @@ export class HatchEnvManager implements EnvironmentManager {
 	}
 
 	/*quickCreateConfig(): QuickCreateConfig | undefined {
-		throw new Error('Method not implemented.')
+		return undefined // TODO: maybe default env?
 	}*/
-	/*async create(
+	async create(
 		scope: CreateEnvironmentScope,
-		options?: CreateEnvironmentOptions,
+		_options: CreateEnvironmentOptions = {}, // TODO: create options
 	): Promise<PythonEnvironment | undefined> {
-		throw new Error('Method not implemented.')
-	}*/
-	/*async remove(environment: PythonEnvironment): Promise<void> {
-		throw new Error('Method not implemented.')
+		if (scope === 'global' || (Array.isArray(scope) && scope.length !== 1)) {
+			throw new Error('Can’t create a global or multi-project environment.')
+		}
+		const uri = Array.isArray(scope) ? scope[0] : scope
+		const choices = (await this.getEnvironments(uri)).map((env) => ({
+			label: env.displayName,
+			env,
+		}))
+		const choice = await window.showQuickPick(choices)
+		if (!choice) {
+			return undefined
+		}
+		await run('hatch', ['env', 'create', choice.env.name], { cwd: uri.fsPath })
+		return choice.env
+	}
+	/*async remove(env: PythonEnvironment): Promise<void> {
+		await run('hatch', ['env', 'remove', env.name], { cwd: ??? })
 	}*/
 	async refresh(scope: RefreshEnvironmentsScope): Promise<void> {
 		const projects = this.api
@@ -83,17 +99,14 @@ export class HatchEnvManager implements EnvironmentManager {
 		return [...cachedEnvs, ...newEnvs]
 	}
 	//onDidChangeEnvironments: Event<DidChangeEnvironmentsEventArgs> | undefined
-	async set(scope: SetEnvironmentScope, environment?: PythonEnvironment): Promise<void> {
-		console.log(scope, environment)
+	async set(_scope: SetEnvironmentScope, _environment?: PythonEnvironment): Promise<void> {
 		throw new Error('set not implemented.')
 	}
-	async get(scope: GetEnvironmentScope): Promise<PythonEnvironment | undefined> {
-		console.log(scope)
+	async get(_scope: GetEnvironmentScope): Promise<PythonEnvironment | undefined> {
 		throw new Error('get not implemented.')
 	}
 	//onDidChangeEnvironment: Event<DidChangeEnvironmentEventArgs> | undefined
-	async resolve(context: ResolveEnvironmentContext): Promise<PythonEnvironment | undefined> {
-		console.log(context)
+	async resolve(_context: ResolveEnvironmentContext): Promise<PythonEnvironment | undefined> {
 		throw new Error('resolve not implemented.')
 	}
 	async clearCache(): Promise<void> {
