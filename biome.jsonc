@@ -1,0 +1,37 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true,
+	},
+	"files": { "ignore": [".yarn/**"] },
+	"formatter": { "useEditorconfig": true },
+	"linter": {
+		"rules": {
+			"complexity": {
+				"useLiteralKeys": "off", // conflicts with tsconfig noPropertyAccessFromIndexSignature: https://github.com/biomejs/biome/issues/463
+			},
+		},
+	},
+	"javascript": {
+		"formatter": {
+			"semicolons": "asNeeded",
+			"quoteStyle": "single",
+		},
+	},
+	"overrides": [
+		{
+			"include": [".vscode/*.json", "tsconfig.json", "**/*.jsonc"],
+			"json": {
+				"formatter": {
+					"trailingCommas": "all",
+				},
+				"parser": {
+					"allowComments": true,
+					"allowTrailingCommas": true,
+				},
+			},
+		},
+	],
+}

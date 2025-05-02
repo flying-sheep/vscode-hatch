@@ -1,8 +1,14 @@
 /out/
 /dist/
 /.pnp.*
+/node_modules/
+/.vscode-test/
+/*.vsix
+
+# yarn
 /.yarn/*
 !/.yarn/plugins/
 !/.yarn/releases/
-/.vscode-test/
-/*.vsix
+!/.yarn/sdks
+/.yarn/sdks/*
+!/.yarn/sdks/integrations.yml
