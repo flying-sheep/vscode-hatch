@@ -6,6 +6,7 @@
 		"lib": ["ES2022"],
 		"sourceMap": true,
 		"rootDir": "src",
+		"typeRoots": ["./node_modules/@types", "./typings"],
 		"strict": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,

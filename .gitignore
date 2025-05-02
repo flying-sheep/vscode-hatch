@@ -5,6 +5,9 @@
 /.vscode-test/
 /*.vsix
 
+# downloaded resources
+/typings/vscode-python-environments/index.d.ts
+
 # yarn
 /.yarn/*
 !/.yarn/plugins/
