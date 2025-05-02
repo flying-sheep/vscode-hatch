@@ -22,18 +22,18 @@ import path from 'node:path'
 const execFile = promisify(execFileCb)
 
 export class HatchEnvManager implements EnvironmentManager {
-	readonly name: string
-	readonly displayName: string
-	readonly preferredPackageManagerId: string
+	readonly name: string = 'hatch'
+	readonly displayName: string = 'Hatch'
+	readonly preferredPackageManagerId: string = 'ms-python.python:pip' // maybe a custom one using uv or pip depending on what’s configured?
 	readonly description?: string | undefined
 	readonly tooltip?: string | MarkdownString | undefined
 	readonly iconPath?: IconPath | undefined
 	readonly log?: LogOutputChannel | undefined
 
+	path2envs: Map<string, Map<string, PythonEnvironment>>
+
 	constructor(private readonly api: PythonEnvironmentApi) {
-		this.name = 'hatch'
-		this.displayName = 'Hatch'
-		this.preferredPackageManagerId = 'ms-python.python:pip' // maybe a custom one using uv or pip depending on what’s configured?
+		this.path2envs = new Map()
 	}
 
 	/*quickCreateConfig(): QuickCreateConfig | undefined {
@@ -49,30 +49,38 @@ export class HatchEnvManager implements EnvironmentManager {
 		throw new Error('Method not implemented.')
 	}*/
 	async refresh(scope: RefreshEnvironmentsScope): Promise<void> {
-		console.log('Refreshing scope:', scope)
-		// TODO
+		const projects = this.api
+			.getPythonProjects()
+			// TODO: check if that === is accurate
+			.filter((p) => scope === undefined || p.uri.fsPath === scope.fsPath)
+		console.log(
+			'Refreshing projects for %s',
+			scope === undefined ? 'all projects' : scope.fsPath,
+		)
+		await this.fetchEnvsForProjects(projects)
 	}
 	async getEnvironments(scope: GetEnvironmentsScope): Promise<PythonEnvironment[]> {
 		if (scope === 'global') {
-			return []
+			return [] // TODO: maybe create shims for Hatch-downloadable Pythons?
 		}
 
-		const promises = this.api
+		const projects = this.api
 			.getPythonProjects()
 			// TODO: check if that === is accurate
 			.filter((p) => scope === 'all' || p.uri.fsPath === scope.fsPath)
-			.map(async (project) => {
-				const json = await run('hatch', ['env', 'show', '--json'], {
-					cwd: project.uri.fsPath,
-				})
-				return await Promise.all(
-					Object.entries(JSON.parse(json) as { [name: string]: HatchEnvConf }).map(
-						async ([name, conf]): Promise<PythonEnvironment> =>
-							this.findHatchEnv(name, conf, project),
-					),
-				)
-			})
-		return (await Promise.all(promises)).flat()
+
+		const cachedEnvs = projects.flatMap((p) =>
+			Array.from(this.path2envs.get(p.uri.fsPath)?.values() ?? []),
+		)
+		const uncachedProjects = projects.filter((p) => !this.path2envs.has(p.uri.fsPath))
+		if (uncachedProjects.length === 0) {
+			// If all projects are already cached, just return them
+			console.log('Found %d cached envs', cachedEnvs.length)
+			return cachedEnvs
+		}
+		const newEnvs = await this.fetchEnvsForProjects(uncachedProjects)
+		console.log('Found %d cached and fetched %d new envs', cachedEnvs.length, newEnvs.length)
+		return [...cachedEnvs, ...newEnvs]
 	}
 	//onDidChangeEnvironments: Event<DidChangeEnvironmentsEventArgs> | undefined
 	async set(scope: SetEnvironmentScope, environment?: PythonEnvironment): Promise<void> {
@@ -88,11 +96,32 @@ export class HatchEnvManager implements EnvironmentManager {
 		console.log(context)
 		throw new Error('resolve not implemented.')
 	}
-	/*async clearCache(): Promise<void> {
-		throw new Error('Method not implemented.')
-	}*/
+	async clearCache(): Promise<void> {
+		this.path2envs.clear()
+	}
 
-	async findHatchEnv(
+	/** Fetches environments for a list of projects and updates the cache */
+	async fetchEnvsForProjects(projects: PythonProject[]): Promise<PythonEnvironment[]> {
+		const promises = projects.map(async (project) => {
+			const json = await run('hatch', ['env', 'show', '--json'], {
+				cwd: project.uri.fsPath,
+			})
+			const envs = await Promise.all(
+				Object.entries(JSON.parse(json) as { [name: string]: HatchEnvConf }).map(
+					async ([name, conf]): Promise<PythonEnvironment> =>
+						this.fetchHatchEnv(name, conf, project),
+				),
+			)
+			return [project.uri.fsPath, new Map(envs.map((e) => [e.envId.id, e]))] as const
+		})
+		const envsPerProj = await Promise.all(promises)
+		for (const [path, envs] of envsPerProj) {
+			this.path2envs.set(path, envs)
+		}
+		return envsPerProj.flatMap(([, envs]) => Array.from(envs.values()))
+	}
+
+	async fetchHatchEnv(
 		name: string,
 		conf: HatchEnvConf,
 		project: PythonProject,
