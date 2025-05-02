@@ -15,20 +15,22 @@ import type {
 	PythonEnvironment,
 	PythonEnvironmentApi,
 	PythonProject,
-	QuickCreateConfig,
 	RefreshEnvironmentsScope,
 	ResolveEnvironmentContext,
 	SetEnvironmentScope,
 } from 'vscode-python-environments'
 import path from 'node:path'
+import * as meta from '../package.json'
 
 const execFile = promisify(execFileCb)
 
 export class HatchEnvManager implements EnvironmentManager {
-	readonly name: string = 'hatch'
-	readonly displayName: string = 'Hatch'
+	static ID = `${meta.publisher}.${meta.name}:${meta.name}`
+
+	readonly name: string = meta.name
+	readonly displayName: string = meta.displayName
 	readonly preferredPackageManagerId: string = 'ms-python.python:pip' // maybe a custom one using uv or pip depending on what’s configured?
-	readonly description?: string | undefined
+	readonly description?: string | undefined // = meta.description
 	readonly tooltip?: string | MarkdownString | undefined
 	readonly iconPath?: IconPath | undefined
 	readonly log?: LogOutputChannel | undefined
@@ -144,7 +146,7 @@ export class HatchEnvManager implements EnvironmentManager {
 		return {
 			envId: {
 				id: name,
-				managerId: this.name,
+				managerId: HatchEnvManager.ID,
 			},
 			name,
 			description: conf.description,

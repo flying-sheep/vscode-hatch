@@ -4,6 +4,7 @@
 		"target": "ES2022",
 		"outDir": "out",
 		"lib": ["ES2022"],
+		"resolveJsonModule": true,
 		"sourceMap": true,
 		"rootDir": "src",
 		"typeRoots": ["./node_modules/@types", "./typings"],
