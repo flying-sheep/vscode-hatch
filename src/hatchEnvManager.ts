@@ -35,10 +35,14 @@ export class HatchEnvManager implements EnvironmentManager {
 	readonly iconPath?: IconPath | undefined
 	readonly log?: LogOutputChannel | undefined
 
+	/** Maps project paths to env names to envs */
 	path2envs: Map<string, Map<string, PythonEnvironment>>
+	/** Maps project paths to active envs */
+	activeEnvs: Map<string | undefined, PythonEnvironment>
 
 	constructor(private readonly api: PythonEnvironmentApi) {
 		this.path2envs = new Map()
+		this.activeEnvs = new Map()
 	}
 
 	/*quickCreateConfig(): QuickCreateConfig | undefined {
@@ -101,11 +105,21 @@ export class HatchEnvManager implements EnvironmentManager {
 		return [...cachedEnvs, ...newEnvs]
 	}
 	//onDidChangeEnvironments: Event<DidChangeEnvironmentsEventArgs> | undefined
-	async set(_scope: SetEnvironmentScope, _environment?: PythonEnvironment): Promise<void> {
-		throw new Error('set not implemented.')
+	async set(scope: SetEnvironmentScope, env?: PythonEnvironment): Promise<void> {
+		for (const uri of Array.isArray(scope) ? scope : [scope]) {
+			if (!env) {
+				console.log('unsetting env for scope %s', uri?.fsPath)
+				this.activeEnvs.delete(uri?.fsPath)
+			} else {
+				console.log('setting g env %s for scope %s', env.displayName, uri?.fsPath)
+				this.activeEnvs.set(uri?.fsPath, env)
+			}
+		}
 	}
-	async get(_scope: GetEnvironmentScope): Promise<PythonEnvironment | undefined> {
-		throw new Error('get not implemented.')
+	async get(scope: GetEnvironmentScope): Promise<PythonEnvironment | undefined> {
+		const env = this.activeEnvs.get(scope?.fsPath)
+		console.log('got env %s for scope %s', env?.displayName, scope?.fsPath)
+		return env
 	}
 	//onDidChangeEnvironment: Event<DidChangeEnvironmentEventArgs> | undefined
 	async resolve(_context: ResolveEnvironmentContext): Promise<PythonEnvironment | undefined> {
