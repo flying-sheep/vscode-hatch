@@ -1,0 +1,8 @@
+/out/
+/dist/
+/.pnp.*
+/.yarn/*
+!/.yarn/plugins/
+!/.yarn/releases/
+/.vscode-test/
+/*.vsix
