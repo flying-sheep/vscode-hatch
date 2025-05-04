@@ -1,10 +1,4 @@
-import { type MarkdownString, type LogOutputChannel, Uri, window, type QuickPickItem } from 'vscode'
-import {
-	execFile as execFileCb,
-	type ExecFileException,
-	type ProcessEnvOptions,
-} from 'node:child_process'
-import { promisify } from 'node:util'
+import { type MarkdownString, type LogOutputChannel, Uri, window } from 'vscode'
 import type {
 	CreateEnvironmentOptions,
 	CreateEnvironmentScope,
@@ -19,10 +13,9 @@ import type {
 	ResolveEnvironmentContext,
 	SetEnvironmentScope,
 } from 'vscode-python-environments'
-import path from 'node:path'
+import paths from 'node:path'
 import * as meta from '../package.json'
-
-const execFile = promisify(execFileCb)
+import * as hatch from './hatch-cli'
 
 export class HatchEnvManager implements EnvironmentManager {
 	static ID = `${meta.publisher}.${meta.name}:${meta.name}`
@@ -38,11 +31,11 @@ export class HatchEnvManager implements EnvironmentManager {
 	/** Maps project paths to env names to envs */
 	path2envs: Map<string, Map<string, PythonEnvironment>>
 	/** Maps project paths to active envs */
-	activeEnvs: Map<string | undefined, PythonEnvironment>
+	activeEnvs: ScopeMap
 
 	constructor(private readonly api: PythonEnvironmentApi) {
 		this.path2envs = new Map()
-		this.activeEnvs = new Map()
+		this.activeEnvs = new ScopeMap()
 	}
 
 	/*quickCreateConfig(): QuickCreateConfig | undefined {
@@ -64,7 +57,7 @@ export class HatchEnvManager implements EnvironmentManager {
 		if (!choice) {
 			return undefined
 		}
-		await run('hatch', ['env', 'create', choice.env.name], { cwd: uri.fsPath })
+		await hatch.createEnv(choice.env.name, uri)
 		return choice.env
 	}
 	/*async remove(env: PythonEnvironment): Promise<void> {
@@ -109,15 +102,15 @@ export class HatchEnvManager implements EnvironmentManager {
 		for (const uri of Array.isArray(scope) ? scope : [scope]) {
 			if (!env) {
 				console.log('unsetting env for scope %s', uri?.fsPath)
-				this.activeEnvs.delete(uri?.fsPath)
+				this.activeEnvs.delete(uri)
 			} else {
-				console.log('setting g env %s for scope %s', env.displayName, uri?.fsPath)
-				this.activeEnvs.set(uri?.fsPath, env)
+				console.log('setting env %s for scope %s', env.displayName, uri?.fsPath)
+				this.activeEnvs.set(uri, env)
 			}
 		}
 	}
 	async get(scope: GetEnvironmentScope): Promise<PythonEnvironment | undefined> {
-		const env = this.activeEnvs.get(scope?.fsPath)
+		const env = this.activeEnvs.get(scope)
 		console.log('got env %s for scope %s', env?.displayName, scope?.fsPath)
 		return env
 	}
@@ -131,78 +124,73 @@ export class HatchEnvManager implements EnvironmentManager {
 
 	/** Fetches environments for a list of projects and updates the cache */
 	async fetchEnvsForProjects(projects: PythonProject[]): Promise<PythonEnvironment[]> {
-		const promises = projects.map(async (project) => {
-			const json = await run('hatch', ['env', 'show', '--json'], {
-				cwd: project.uri.fsPath,
-			})
-			const envs = await Promise.all(
-				Object.entries(JSON.parse(json) as { [name: string]: HatchEnvConf }).map(
-					async ([name, conf]): Promise<PythonEnvironment> =>
-						this.fetchHatchEnv(name, conf, project),
-				),
-			)
-			return [project.uri.fsPath, new Map(envs.map((e) => [e.envId.id, e]))] as const
-		})
-		const envsPerProj = await Promise.all(promises)
-		for (const [path, envs] of envsPerProj) {
+		const envsPerProj = await Promise.all(
+			projects.map(
+				async (project) => [project.uri.fsPath, await hatch.getEnvs(project.uri)] as const,
+			),
+		)
+		const pyEnvsPerProj = new Map(
+			envsPerProj.map(([path, envs]) => [
+				path,
+				new Map(envs.map(hatch2pythonEnv).map((env) => [env.name, env])),
+			]),
+		)
+		for (const [path, envs] of pyEnvsPerProj) {
 			this.path2envs.set(path, envs)
 		}
-		return envsPerProj.flatMap(([, envs]) => Array.from(envs.values()))
+		return Array.from(pyEnvsPerProj.values()).flatMap((envs) => Array.from(envs.values()))
+	}
+}
+
+class ScopeMap {
+	map: Map<string | undefined, PythonEnvironment>
+
+	constructor() {
+		this.map = new Map()
 	}
 
-	async fetchHatchEnv(
-		name: string,
-		conf: HatchEnvConf,
-		project: PythonProject,
-	): Promise<PythonEnvironment> {
-		const results = await run('hatch', ['env', 'find', name], { cwd: project.uri.fsPath })
-		const [p] = results.split('\n')
-		return {
-			envId: {
-				id: name,
-				managerId: HatchEnvManager.ID,
-			},
-			name,
-			description: conf.description,
-			displayName: name,
-			displayPath: p,
-			tooltip: p,
-			environmentPath: Uri.file(p),
-			sysPrefix: p,
-			version: '1', // TODO
-			execInfo: {
-				run: {
-					executable: path.join(p, 'bin', 'python'),
-				},
-			},
+	set(key: Uri | undefined, value: PythonEnvironment): void {
+		this.map.set(key?.fsPath, value)
+	}
+	delete(key: Uri | undefined): void {
+		this.map.delete(key?.fsPath)
+	}
+	has(key: Uri | undefined): boolean {
+		return this.get(key) !== undefined
+	}
+	get(keyOrig: Uri | undefined): PythonEnvironment | undefined {
+		let key = keyOrig
+		while (key && !this.map.has(key.fsPath)) {
+			const parent = paths.dirname(key.fsPath)
+			if (parent === key.fsPath) {
+				console.log('hit root from', keyOrig?.fsPath)
+				break
+			}
+			console.log('no env for %s, trying %s', key.fsPath, parent)
+			key = Uri.file(parent)
 		}
+		return this.map.get(key?.fsPath)
 	}
 }
 
-async function run(cmd: string, args: string[], opts: ProcessEnvOptions): Promise<string> {
-	try {
-		const { stdout } = await execFile(cmd, args, opts)
-		return stdout
-	} catch (e) {
-		const err = e as ExecFileException
-		console.error(err.stderr)
-		throw err
+function hatch2pythonEnv({ name, conf, path }: hatch.HatchEnvInfo): PythonEnvironment {
+	return {
+		envId: {
+			id: name,
+			managerId: HatchEnvManager.ID,
+		},
+		name,
+		description: conf.description,
+		displayName: name,
+		displayPath: path,
+		tooltip: path,
+		environmentPath: Uri.file(path),
+		sysPrefix: path,
+		version: '1', // TODO
+		execInfo: {
+			run: {
+				executable: paths.join(path, 'bin', 'python'),
+			},
+		},
 	}
-}
-
-interface HatchEnvConf {
-	installer: 'uv' | 'pip'
-	type: 'virtual'
-	dependencies?: string[]
-	'extra-dependencies'?: string[]
-	scripts?: { [name: string]: string[] }
-	'env-vars'?: { [name: string]: string }
-	'default-args'?: string[]
-	features?: string[]
-	python?: string
-	'skip-install'?: boolean
-	'pre-install-commands'?: string[]
-	'post-install-commands'?: string[]
-	platforms?: ('windows' | 'linux' | 'macos')[]
-	description?: string
 }
