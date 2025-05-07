@@ -1,18 +1,19 @@
+import paths from 'node:path'
+import * as fs from 'fs-extra'
 import {
-	type MarkdownString,
-	type LogOutputChannel,
-	Uri,
-	window,
-	ProgressLocation,
 	EventEmitter,
 	type IconPath,
+	type LogOutputChannel,
+	type MarkdownString,
+	ProgressLocation,
+	Uri,
+	window,
 } from 'vscode'
-import paths from 'node:path'
-import * as hatch from './hatch-cli'
-import * as fs from 'fs-extra'
 import { HATCH_ID, HATCH_NAME } from './common/constants'
+import { type Deferred, createDeferred } from './common/deferred'
+import { isWindows } from './common/platform'
 import { ScopeMap } from './common/scopeMap'
-import { createDeferred, type Deferred } from './common/deferred'
+import * as hatch from './hatch-cli'
 import {
 	type DidChangeEnvironmentEventArgs,
 	type DidChangeEnvironmentsEventArgs,
@@ -27,17 +28,16 @@ import {
 	type ResolveEnvironmentContext,
 	type SetEnvironmentScope,
 } from './vscode-python-environments'
-import { isWindows } from './common/platform'
 
 export class HatchEnvManager implements EnvironmentManager {
 	readonly name: string = HATCH_ID
 	readonly displayName: string = HATCH_NAME
 
 	private readonly _onDidChangeEnvironment = new EventEmitter<DidChangeEnvironmentEventArgs>()
-	public readonly onDidChangeEnvironment = this._onDidChangeEnvironment.event
+	readonly onDidChangeEnvironment = this._onDidChangeEnvironment.event
 
 	private readonly _onDidChangeEnvironments = new EventEmitter<DidChangeEnvironmentsEventArgs>()
-	public readonly onDidChangeEnvironments = this._onDidChangeEnvironments.event
+	readonly onDidChangeEnvironments = this._onDidChangeEnvironments.event
 
 	// The ms-python `pip` package manager uses `uv` when available internally.
 	readonly preferredPackageManagerId: string = 'ms-python.python:pip'

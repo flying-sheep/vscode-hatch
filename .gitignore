@@ -1,14 +1,15 @@
 /out/
 /dist/
-/.pnp.*
 /node_modules/
 /.vscode-test/
+/.husky/_/
 /*.vsix
 
 # downloaded resources
 /src/vscode-python-environments/index.ts
 
 # yarn
+/.pnp.*
 /.yarn/*
 !/.yarn/plugins/
 !/.yarn/releases/

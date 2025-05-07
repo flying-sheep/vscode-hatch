@@ -1,6 +1,6 @@
+import paths from 'node:path'
 import { Uri } from 'vscode'
 import type { PythonEnvironment } from '../vscode-python-environments'
-import paths from 'node:path'
 
 export class ScopeMap {
 	map: Map<string | undefined, PythonEnvironment>
