@@ -1,196 +1,249 @@
-import { type MarkdownString, type LogOutputChannel, Uri, window } from 'vscode'
-import type {
-	CreateEnvironmentOptions,
-	CreateEnvironmentScope,
-	EnvironmentManager,
-	GetEnvironmentScope,
-	GetEnvironmentsScope,
-	IconPath,
-	PythonEnvironment,
-	PythonEnvironmentApi,
-	PythonProject,
-	RefreshEnvironmentsScope,
-	ResolveEnvironmentContext,
-	SetEnvironmentScope,
-} from 'vscode-python-environments'
-import paths from 'node:path'
-import * as meta from '../package.json'
-import * as hatch from './hatch-cli'
+import {
+	type MarkdownString,
+	type LogOutputChannel,
+	Uri,
+	window,
+	ProgressLocation,
+	EventEmitter,
+	type IconPath,
+} from "vscode";
+import paths from "node:path";
+import * as hatch from "./hatch-cli";
+import * as fs from "fs-extra";
+import { HATCH_ID, HATCH_NAME } from "./common/constants";
+import { ScopeMap } from "./common/scopeMap";
+import { createDeferred, type Deferred } from "./common/deferred";
+import {
+	type DidChangeEnvironmentEventArgs,
+	type DidChangeEnvironmentsEventArgs,
+	EnvironmentChangeKind,
+	type EnvironmentManager,
+	type GetEnvironmentScope,
+	type GetEnvironmentsScope,
+	type PythonEnvironment,
+	type PythonEnvironmentApi,
+	type PythonProject,
+	type RefreshEnvironmentsScope,
+	type ResolveEnvironmentContext,
+	type SetEnvironmentScope,
+} from "./vscode-python-environments";
+import { isWindows } from "./common/platform";
 
 export class HatchEnvManager implements EnvironmentManager {
-	static ID = `${meta.publisher}.${meta.name}:${meta.name}`
+	readonly name: string = HATCH_ID;
+	readonly displayName: string = HATCH_NAME;
 
-	readonly name: string = meta.name
-	readonly displayName: string = meta.displayName
-	readonly preferredPackageManagerId: string = 'ms-python.python:pip' // maybe a custom one using uv or pip depending on what’s configured?
-	readonly description?: string | undefined // = meta.description
-	readonly tooltip?: string | MarkdownString | undefined
-	readonly iconPath?: IconPath | undefined
-	readonly log?: LogOutputChannel | undefined
+	private readonly _onDidChangeEnvironment = new EventEmitter<DidChangeEnvironmentEventArgs>();
+	public readonly onDidChangeEnvironment = this._onDidChangeEnvironment.event;
 
-	/** Maps project paths to env names to envs */
-	path2envs: Map<string, Map<string, PythonEnvironment>>
-	/** Maps project paths to active envs */
-	activeEnvs: ScopeMap
+	private readonly _onDidChangeEnvironments = new EventEmitter<DidChangeEnvironmentsEventArgs>();
+	public readonly onDidChangeEnvironments = this._onDidChangeEnvironments.event;
 
-	constructor(private readonly api: PythonEnvironmentApi) {
-		this.path2envs = new Map()
-		this.activeEnvs = new ScopeMap()
+	// The ms-python `pip` package manager uses `uv` when available internally.
+	readonly preferredPackageManagerId: string = "ms-python.python:pip";
+	readonly description?: string;
+	readonly tooltip?: string | MarkdownString;
+	readonly iconPath?: IconPath;
+
+	path2envs: Map<string, Map<string, PythonEnvironment>>;
+	activeEnvs: ScopeMap;
+
+	constructor(private readonly api: PythonEnvironmentApi, readonly log?: LogOutputChannel) {
+		this.path2envs = new Map();
+		this.activeEnvs = new ScopeMap();
 	}
 
-	/*quickCreateConfig(): QuickCreateConfig | undefined {
-		return undefined // TODO: maybe default env?
-	}*/
-	async create(
-		scope: CreateEnvironmentScope,
-		_options: CreateEnvironmentOptions = {}, // TODO: create options
-	): Promise<PythonEnvironment | undefined> {
-		if (scope === 'global' || (Array.isArray(scope) && scope.length !== 1)) {
-			throw new Error('Can’t create a global or multi-project environment.')
+	private _initialized: Deferred<void> | undefined;
+	async initialize(): Promise<void> {
+		if (this._initialized) {
+			return this._initialized.promise;
 		}
-		const uri = Array.isArray(scope) ? scope[0] : scope
-		const choices = (await this.getEnvironments(uri)).map((env) => ({
-			label: env.displayName,
-			env,
-		}))
-		const choice = await window.showQuickPick(choices)
-		if (!choice) {
-			return undefined
+
+		this._initialized = createDeferred();
+
+		try {
+			await this.internalRefresh(undefined);
+		} finally {
+			this._initialized?.resolve();
 		}
-		await hatch.createEnv(choice.env.name, uri)
-		return choice.env
 	}
-	/*async remove(env: PythonEnvironment): Promise<void> {
-		await run('hatch', ['env', 'remove', env.name], { cwd: ??? })
-	}*/
+
 	async refresh(scope: RefreshEnvironmentsScope): Promise<void> {
-		const projects = this.api
-			.getPythonProjects()
-			// TODO: check if that === is accurate
-			.filter((p) => scope === undefined || p.uri.fsPath === scope.fsPath)
-		console.log(
-			'Refreshing projects for %s',
-			scope === undefined ? 'all projects' : scope.fsPath,
-		)
-		await this.fetchEnvsForProjects(projects)
+		await this.internalRefresh(scope);
 	}
+
+	async internalRefresh(
+		scope: RefreshEnvironmentsScope,
+		location: ProgressLocation = ProgressLocation.Window
+	): Promise<void> {
+		await window.withProgress(
+			{
+				location,
+				title: "Refreshing Hatch environments",
+				cancellable: false,
+			},
+			async () => {
+				this.path2envs.clear();
+				if (scope === undefined) {
+					const projects = this.api.getPythonProjects();
+					await this.fetchEnvsForProjects(projects);
+				} else {
+					const project = this.api.getPythonProject(scope);
+					if (project) {
+						this.log?.info("Refreshing project %s", project.uri.fsPath);
+						await this.fetchEnvsForProjects([project]);
+					}
+				}
+			}
+		);
+	}
+
 	async getEnvironments(scope: GetEnvironmentsScope): Promise<PythonEnvironment[]> {
-		if (scope === 'global') {
-			return [] // TODO: maybe create shims for Hatch-downloadable Pythons?
+		await this.initialize();
+
+		if (scope === "global") {
+			this.log?.debug("getEnvironments called with scope 'global'");
+			return []; // TODO: maybe create shims for Hatch-downloadable Pythons?
 		}
 
-		const projects = this.api
-			.getPythonProjects()
-			// TODO: check if that === is accurate
-			.filter((p) => scope === 'all' || p.uri.fsPath === scope.fsPath)
-
-		const cachedEnvs = projects.flatMap((p) =>
-			Array.from(this.path2envs.get(p.uri.fsPath)?.values() ?? []),
-		)
-		const uncachedProjects = projects.filter((p) => !this.path2envs.has(p.uri.fsPath))
-		if (uncachedProjects.length === 0) {
-			// If all projects are already cached, just return them
-			console.log('Found %d cached envs', cachedEnvs.length)
-			return cachedEnvs
+		if (scope === "all") {
+			this.log?.debug("getEnvironments called with scope 'all'");
+			const allEnvs = Array.from(this.path2envs.values()).flatMap((envs) =>
+				Array.from(envs.values())
+			);
+			this.log?.debug("Found %d environments in cache", allEnvs.length);
+			return allEnvs;
 		}
-		const newEnvs = await this.fetchEnvsForProjects(uncachedProjects)
-		console.log('Found %d cached and fetched %d new envs', cachedEnvs.length, newEnvs.length)
-		return [...cachedEnvs, ...newEnvs]
+
+		const project = this.api.getPythonProject(scope);
+		if (!project) {
+			return [];
+		}
+
+		const cachedEnvs = Array.from(this.path2envs.get(project.uri.fsPath)?.values() ?? []);
+		const uncached = !this.path2envs.has(project.uri.fsPath);
+		if (!uncached) {
+			this.log?.info("Found %d cached envs", cachedEnvs.length);
+			return cachedEnvs;
+		}
+		await this.fetchEnvsForProjects([project]);
+		return Array.from(this.path2envs.get(project.uri.fsPath)?.values() ?? []);
 	}
-	//onDidChangeEnvironments: Event<DidChangeEnvironmentsEventArgs> | undefined
+
 	async set(scope: SetEnvironmentScope, env?: PythonEnvironment): Promise<void> {
 		for (const uri of Array.isArray(scope) ? scope : [scope]) {
 			if (!env) {
-				console.log('unsetting env for scope %s', uri?.fsPath)
-				this.activeEnvs.delete(uri)
+				this.log?.info("unsetting env for scope %s", uri?.fsPath);
+				this.activeEnvs.delete(uri);
 			} else {
-				console.log('setting env %s for scope %s', env.displayName, uri?.fsPath)
-				this.activeEnvs.set(uri, env)
+				this.log?.info("setting env %s for scope %s", env.displayName, uri?.fsPath);
+				const old = this.activeEnvs.get(uri);
+				this.activeEnvs.set(uri, env);
+				if (old?.envId.id !== env.envId.id) {
+					this._onDidChangeEnvironment.fire({
+						uri,
+						new: env,
+						old: old,
+					});
+				}
 			}
 		}
 	}
+
 	async get(scope: GetEnvironmentScope): Promise<PythonEnvironment | undefined> {
-		const env = this.activeEnvs.get(scope)
-		console.log('got env %s for scope %s', env?.displayName, scope?.fsPath)
-		return env
+		await this.initialize();
+
+		let env = this.activeEnvs.get(scope);
+		if (!env) {
+			// If no active environment is set, try to find the default environment for the scope.
+			if (scope) {
+				env = Array.from(this.path2envs.get(scope.fsPath)?.values() ?? []).find(
+					(env) => env.name === "default"
+				);
+			} else {
+				env = Array.from(this.path2envs.values())
+					.flatMap((envs) => Array.from(envs.values()))
+					.find((env) => env.name === "default");
+			}
+		}
+
+		if (scope && env && !(await fs.pathExists(env.environmentPath.fsPath))) {
+			try {
+				await hatch.createEnv(env.name, scope);
+			} catch (error) {
+				this.log?.error("Failed to create env for scope %s: %s", scope?.fsPath, error);
+				return undefined;
+			}
+		}
+
+		this.log?.info(`got env ${env?.displayName} for scope ${scope?.fsPath}`);
+		return env;
 	}
 	//onDidChangeEnvironment: Event<DidChangeEnvironmentEventArgs> | undefined
 	async resolve(_context: ResolveEnvironmentContext): Promise<PythonEnvironment | undefined> {
-		throw new Error('resolve not implemented.')
+		throw new Error("resolve not implemented.");
 	}
 	async clearCache(): Promise<void> {
-		this.path2envs.clear()
+		this.path2envs.clear();
 	}
 
 	/** Fetches environments for a list of projects and updates the cache */
-	async fetchEnvsForProjects(projects: PythonProject[]): Promise<PythonEnvironment[]> {
+	async fetchEnvsForProjects(projects: readonly PythonProject[]): Promise<void> {
+		const before = Array.from(this.path2envs.values())
+			.flatMap((envs) => Array.from(envs.values()))
+			.map((env) => ({
+				kind: EnvironmentChangeKind.remove,
+				environment: env,
+			}));
+
 		const envsPerProj = await Promise.all(
 			projects.map(
-				async (project) => [project.uri.fsPath, await hatch.getEnvs(project.uri)] as const,
-			),
-		)
+				async (project) => [project.uri.fsPath, await hatch.getEnvs(project.uri)] as const
+			)
+		);
+
 		const pyEnvsPerProj = new Map(
 			envsPerProj.map(([path, envs]) => [
 				path,
-				new Map(envs.map(hatch2pythonEnv).map((env) => [env.name, env])),
-			]),
-		)
+				new Map(envs.map(this.hatch2pythonEnv.bind(this)).map((env) => [env.name, env])),
+			])
+		);
+
 		for (const [path, envs] of pyEnvsPerProj) {
-			this.path2envs.set(path, envs)
+			this.path2envs.set(path, envs);
 		}
-		return Array.from(pyEnvsPerProj.values()).flatMap((envs) => Array.from(envs.values()))
-	}
-}
 
-class ScopeMap {
-	map: Map<string | undefined, PythonEnvironment>
+		const after = Array.from(pyEnvsPerProj.values())
+			.flatMap((envs) => Array.from(envs.values()))
+			.map((env) => ({
+				kind: EnvironmentChangeKind.add,
+				environment: env,
+			}));
 
-	constructor() {
-		this.map = new Map()
+		this._onDidChangeEnvironments.fire([...before, ...after]);
 	}
 
-	set(key: Uri | undefined, value: PythonEnvironment): void {
-		this.map.set(key?.fsPath, value)
-	}
-	delete(key: Uri | undefined): void {
-		this.map.delete(key?.fsPath)
-	}
-	has(key: Uri | undefined): boolean {
-		return this.get(key) !== undefined
-	}
-	get(keyOrig: Uri | undefined): PythonEnvironment | undefined {
-		let key = keyOrig
-		while (key && !this.map.has(key.fsPath)) {
-			const parent = paths.dirname(key.fsPath)
-			if (parent === key.fsPath) {
-				console.log('hit root from', keyOrig?.fsPath)
-				break
-			}
-			console.log('no env for %s, trying %s', key.fsPath, parent)
-			key = Uri.file(parent)
-		}
-		return this.map.get(key?.fsPath)
-	}
-}
-
-function hatch2pythonEnv({ name, conf, path }: hatch.HatchEnvInfo): PythonEnvironment {
-	return {
-		envId: {
-			id: name,
-			managerId: HatchEnvManager.ID,
-		},
-		name,
-		description: conf.description,
-		displayName: name,
-		displayPath: path,
-		tooltip: path,
-		environmentPath: Uri.file(path),
-		sysPrefix: path,
-		version: '1', // TODO
-		execInfo: {
-			run: {
-				executable: paths.join(path, 'bin', 'python'),
+	private hatch2pythonEnv({ name, conf, path }: hatch.HatchEnvInfo): PythonEnvironment {
+		const binPath = isWindows()
+			? paths.join(path, "Scripts", "python.exe")
+			: paths.join(path, "bin", "python");
+		return this.api.createPythonEnvironmentItem(
+			{
+				name,
+				description: conf.description,
+				displayName: name,
+				displayPath: path,
+				tooltip: path,
+				environmentPath: Uri.file(path),
+				sysPrefix: path,
+				version: "1", // TODO
+				execInfo: {
+					run: {
+						executable: binPath,
+					},
+				},
 			},
-		},
+			this
+		);
 	}
 }

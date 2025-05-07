@@ -6,7 +6,7 @@
 /*.vsix
 
 # downloaded resources
-/typings/vscode-python-environments/index.d.ts
+/src/vscode-python-environments/index.ts
 
 # yarn
 /.yarn/*
