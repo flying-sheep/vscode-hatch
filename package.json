@@ -8,6 +8,10 @@
 		"vscode": "^1.99.0"
 	},
 	"categories": ["Other"],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/flying-sheep/vscode-hatch.git"
+	},
 	"publisher": "flying-sheep",
 	"extensionDependencies": ["ms-python.vscode-python-envs"],
 	"activationEvents": [
@@ -19,7 +23,7 @@
 	"scripts": {
 		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run compile",
 		"postinstall": "$npm_execpath run husky && $npm_execpath run sync",
-		"sync": "curl -o src/vscode-python-environments/index.ts -L \"https://github.com/microsoft/vscode-python-environments/raw/refs/heads/main/src/api.ts\"",
+		"sync": "curl -sf -o src/vscode-python-environments/index.ts -L \"https://github.com/microsoft/vscode-python-environments/raw/refs/heads/main/src/api.ts\"",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"pretest": "$npm_execpath run compile && $npm_execpath run lint",
@@ -28,7 +32,8 @@
 		"lint:style": "eslint src",
 		"lint:deps": "depcheck --ignores=vscode,@types/mocha",
 		"format": "biome format --write",
-		"test": "vscode-test"
+		"test": "vscode-test",
+		"vsce-package": "vsce package --follow-symlinks -o hatch.vsix"
 	},
 	"lint-staged": {
 		"*": "biome check --no-errors-on-unmatched --files-ignore-unknown=true --write"
@@ -45,6 +50,7 @@
 		"@typescript-eslint/eslint-plugin": "^8.31.1",
 		"@typescript-eslint/parser": "^8.31.1",
 		"@vscode/test-cli": "^0.0.10",
+		"@vscode/vsce": "^3.3.2",
 		"depcheck": "^1.4.7",
 		"eslint": "^9.25.1",
 		"husky": "^9.1.7",
