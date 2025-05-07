@@ -26,7 +26,7 @@
 		"lint": "$npm_execpath run lint:check && $npm_execpath run lint:style && $npm_execpath run lint:deps",
 		"lint:check": "biome check --write .",
 		"lint:style": "eslint src",
-		"lint:deps": "depcheck --ignores=vscode",
+		"lint:deps": "depcheck --ignores=vscode,@types/mocha",
 		"format": "biome format --write",
 		"test": "vscode-test"
 	},
@@ -45,7 +45,6 @@
 		"@typescript-eslint/eslint-plugin": "^8.31.1",
 		"@typescript-eslint/parser": "^8.31.1",
 		"@vscode/test-cli": "^0.0.10",
-		"@vscode/test-electron": "^2.5.2",
 		"depcheck": "^1.4.7",
 		"eslint": "^9.25.1",
 		"husky": "^9.1.7",
