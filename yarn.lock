@@ -471,7 +471,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/vscode@npm:^1.99.0":
+"@types/vscode@npm:^1.99.1":
   version: 1.99.1
   resolution: "@types/vscode@npm:1.99.1"
   checksum: 10/0d9b2617f1164bd283529f3670abedc06db39dd022a501459eb3724e68a24f9304004b3f37b0621783f2540bc0c0294742fa010f68f83507aa24f23eb7bfb8ef
@@ -2060,7 +2060,7 @@ __metadata:
     "@types/fs-extra": "npm:^11.0.4"
     "@types/mocha": "npm:^10.0.10"
     "@types/node": "npm:22.x"
-    "@types/vscode": "npm:^1.99.0"
+    "@types/vscode": "npm:^1.99.1"
     "@vscode/test-cli": "npm:^0.0.10"
     "@vscode/vsce": "npm:^3.3.2"
     depcheck: "npm:^1.4.7"
