@@ -1,7 +1,7 @@
 import {
-	execFile as execFileCb,
 	type ExecFileException,
 	type ProcessEnvOptions,
+	execFile as execFileCb,
 } from 'node:child_process'
 import { promisify } from 'node:util'
 import type { Uri } from 'vscode'
