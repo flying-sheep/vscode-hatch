@@ -3,36 +3,36 @@
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
-		"useIgnoreFile": true
+		"useIgnoreFile": true,
 	},
 	"files": { "ignore": [".yarn/**"] },
 	"formatter": { "useEditorconfig": true },
 	"linter": {
 		"rules": {
 			"complexity": {
-				"useLiteralKeys": "off" // conflicts with tsconfig noPropertyAccessFromIndexSignature: https://github.com/biomejs/biome/issues/463
-			}
+				"useLiteralKeys": "off", // conflicts with tsconfig noPropertyAccessFromIndexSignature: https://github.com/biomejs/biome/issues/463
+			},
 		},
-		"ignore": ["**/src/vscode-python-environments/*.ts"]
+		"ignore": ["**/src/vscode-python-environments/*.ts"],
 	},
 	"javascript": {
 		"formatter": {
 			"semicolons": "asNeeded",
-			"quoteStyle": "single"
-		}
+			"quoteStyle": "single",
+		},
 	},
 	"overrides": [
 		{
 			"include": [".vscode/*.json", "tsconfig.json", "**/*.jsonc"],
 			"json": {
 				"formatter": {
-					"trailingCommas": "all"
+					"trailingCommas": "all",
 				},
 				"parser": {
 					"allowComments": true,
-					"allowTrailingCommas": true
-				}
-			}
-		}
-	]
+					"allowTrailingCommas": true,
+				},
+			},
+		},
+	],
 }

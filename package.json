@@ -7,17 +7,10 @@
 	"engines": {
 		"vscode": "^1.99.0"
 	},
-	"categories": [
-		"Other"
-	],
+	"categories": ["Other"],
 	"publisher": "flying-sheep",
-	"extensionDependencies": [
-		"ms-python.vscode-python-envs"
-	],
-	"activationEvents": [
-		"onLanguage:python",
-		"workspaceContains:**/hatch.toml"
-	],
+	"extensionDependencies": ["ms-python.vscode-python-envs"],
+	"activationEvents": ["onLanguage:python", "workspaceContains:**/hatch.toml"],
 	"main": "./out/extension.js",
 	"scripts": {
 		"vscode:prepublish": "yarn run sync && yarn run compile",
