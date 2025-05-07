@@ -5,6 +5,7 @@ import {
 } from 'node:child_process'
 import { promisify } from 'node:util'
 import type { Uri } from 'vscode'
+import { traceError } from './common/logging'
 
 const execFile = promisify(execFileCb)
 
@@ -66,7 +67,7 @@ async function run(cmd: string, args: string[], opts: ProcessEnvOptions): Promis
 		return stdout
 	} catch (e) {
 		const err = e as ExecFileException
-		console.error(err.stderr)
+		traceError(err.stderr)
 		throw err
 	}
 }

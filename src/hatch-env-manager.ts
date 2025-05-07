@@ -3,7 +3,6 @@ import * as fs from 'fs-extra'
 import {
 	EventEmitter,
 	type IconPath,
-	type LogOutputChannel,
 	type MarkdownString,
 	ProgressLocation,
 	Uri,
@@ -11,6 +10,7 @@ import {
 } from 'vscode'
 import { HATCH_ID, HATCH_NAME } from './common/constants'
 import { type Deferred, createDeferred } from './common/deferred'
+import { traceError, traceInfo, traceVerbose } from './common/logging'
 import { isWindows } from './common/platform'
 import { ScopeMap } from './common/scope-map'
 import * as hatch from './hatch-cli'
@@ -48,10 +48,7 @@ export class HatchEnvManager implements EnvironmentManager {
 	path2envs: Map<string, Map<string, PythonEnvironment>>
 	activeEnvs: ScopeMap
 
-	constructor(
-		private readonly api: PythonEnvironmentApi,
-		readonly log?: LogOutputChannel,
-	) {
+	constructor(private readonly api: PythonEnvironmentApi) {
 		this.path2envs = new Map()
 		this.activeEnvs = new ScopeMap()
 	}
@@ -93,7 +90,7 @@ export class HatchEnvManager implements EnvironmentManager {
 				} else {
 					const project = this.api.getPythonProject(scope)
 					if (project) {
-						this.log?.info('Refreshing project %s', project.uri.fsPath)
+						traceInfo('Refreshing project %s', project.uri.fsPath)
 						await this.fetchEnvsForProjects([project])
 					}
 				}
@@ -105,16 +102,16 @@ export class HatchEnvManager implements EnvironmentManager {
 		await this.initialize()
 
 		if (scope === 'global') {
-			this.log?.debug("getEnvironments called with scope 'global'")
+			traceVerbose("getEnvironments called with scope 'global'")
 			return [] // TODO: maybe create shims for Hatch-downloadable Pythons?
 		}
 
 		if (scope === 'all') {
-			this.log?.debug("getEnvironments called with scope 'all'")
+			traceVerbose("getEnvironments called with scope 'all'")
 			const allEnvs = Array.from(this.path2envs.values()).flatMap((envs) =>
 				Array.from(envs.values()),
 			)
-			this.log?.debug('Found %d environments in cache', allEnvs.length)
+			traceVerbose('Found %d environments in cache', allEnvs.length)
 			return allEnvs
 		}
 
@@ -126,7 +123,7 @@ export class HatchEnvManager implements EnvironmentManager {
 		const cachedEnvs = Array.from(this.path2envs.get(project.uri.fsPath)?.values() ?? [])
 		const uncached = !this.path2envs.has(project.uri.fsPath)
 		if (!uncached) {
-			this.log?.info('Found %d cached envs', cachedEnvs.length)
+			traceInfo('Found %d cached envs', cachedEnvs.length)
 			return cachedEnvs
 		}
 		await this.fetchEnvsForProjects([project])
@@ -136,10 +133,10 @@ export class HatchEnvManager implements EnvironmentManager {
 	async set(scope: SetEnvironmentScope, env?: PythonEnvironment): Promise<void> {
 		for (const uri of Array.isArray(scope) ? scope : [scope]) {
 			if (!env) {
-				this.log?.info('unsetting env for scope %s', uri?.fsPath)
+				traceInfo('unsetting env for scope %s', uri?.fsPath)
 				this.activeEnvs.delete(uri)
 			} else {
-				this.log?.info('setting env %s for scope %s', env.displayName, uri?.fsPath)
+				traceInfo('setting env %s for scope %s', env.displayName, uri?.fsPath)
 				const old = this.activeEnvs.get(uri)
 				this.activeEnvs.set(uri, env)
 				if (old?.envId.id !== env.envId.id) {
@@ -174,12 +171,12 @@ export class HatchEnvManager implements EnvironmentManager {
 			try {
 				await hatch.createEnv(env.name, scope)
 			} catch (error) {
-				this.log?.error('Failed to create env for scope %s: %s', scope?.fsPath, error)
+				traceError('Failed to create env for scope %s: %s', scope?.fsPath, error)
 				return undefined
 			}
 		}
 
-		this.log?.info(`got env ${env?.displayName} for scope ${scope?.fsPath}`)
+		traceInfo(`got env ${env?.displayName} for scope ${scope?.fsPath}`)
 		return env
 	}
 	//onDidChangeEnvironment: Event<DidChangeEnvironmentEventArgs> | undefined

@@ -1,6 +1,7 @@
 import paths from 'node:path'
 import { Uri } from 'vscode'
 import type { PythonEnvironment } from '../vscode-python-environments'
+import { traceLog } from './logging'
 
 export class ScopeMap {
 	map: Map<string | undefined, PythonEnvironment>
@@ -23,10 +24,10 @@ export class ScopeMap {
 		while (key && !this.map.has(key.fsPath)) {
 			const parent = paths.dirname(key.fsPath)
 			if (parent === key.fsPath) {
-				console.log('hit root from', keyOrig?.fsPath)
+				traceLog('hit root from', keyOrig?.fsPath)
 				break
 			}
-			console.log('no env for %s, trying %s', key.fsPath, parent)
+			traceLog(`no env for ${key.fsPath}, trying ${parent}`)
 			key = Uri.file(parent)
 		}
 		return this.map.get(key?.fsPath)
