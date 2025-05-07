@@ -21,19 +21,18 @@
 	],
 	"main": "./out/extension.js",
 	"scripts": {
-		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run compile",
 		"postinstall": "$npm_execpath run husky && $npm_execpath run sync",
 		"sync": "curl -sf -o src/vscode-python-environments/index.ts -L \"https://github.com/microsoft/vscode-python-environments/raw/refs/heads/main/src/api.ts\"",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"pretest": "$npm_execpath run compile && $npm_execpath run lint",
 		"lint": "$npm_execpath run lint:check && $npm_execpath run lint:style && $npm_execpath run lint:deps",
 		"lint:check": "biome check --write .",
 		"lint:style": "eslint src",
 		"lint:deps": "depcheck --ignores=vscode,@types/mocha",
-		"format": "biome format --write",
+		"pretest": "$npm_execpath run compile && $npm_execpath run lint",
 		"test": "vscode-test",
-		"vsce-package": "vsce package --follow-symlinks -o hatch.vsix"
+		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run compile",
+		"vsce-package": "vsce package --yarn --follow-symlinks -o hatch.vsix"
 	},
 	"lint-staged": {
 		"*": "biome check --no-errors-on-unmatched --files-ignore-unknown=true --write"
