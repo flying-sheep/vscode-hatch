@@ -10,11 +10,11 @@
 	"categories": ["Other"],
 	"publisher": "flying-sheep",
 	"extensionDependencies": ["ms-python.vscode-python-envs"],
-	"activationEvents": ["onLanguage:python"],
+	"activationEvents": ["onLanguage:python", "workspaceContains:**/hatch.toml"],
 	"main": "./out/extension.js",
 	"scripts": {
 		"vscode:prepublish": "yarn run sync && yarn run compile",
-		"sync": "curl -o typings/vscode-python-environments/index.d.ts -L \"https://github.com/microsoft/vscode-python-environments/raw/refs/heads/main/src/api.ts\"",
+		"sync": "curl -o src/vscode-python-environments/index.ts -L \"https://github.com/microsoft/vscode-python-environments/raw/refs/heads/main/src/api.ts\"",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"pretest": "yarn run compile && yarn run lint",
@@ -22,8 +22,12 @@
 		"format": "biome format --write",
 		"test": "vscode-test"
 	},
+	"dependencies": {
+		"fs-extra": "11.3.0"
+	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"@types/fs-extra": "^11.0.4",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "20.x",
 		"@types/vscode": "^1.99.0",

@@ -13,6 +13,7 @@
 				"useLiteralKeys": "off", // conflicts with tsconfig noPropertyAccessFromIndexSignature: https://github.com/biomejs/biome/issues/463
 			},
 		},
+		"ignore": ["**/src/vscode-python-environments/*.ts"],
 	},
 	"javascript": {
 		"formatter": {

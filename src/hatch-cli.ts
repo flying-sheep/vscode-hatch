@@ -45,7 +45,10 @@ export async function getEnvs(scope: Uri): Promise<HatchEnvInfo[]> {
 
 export async function findEnv(name: string, scope: Uri): Promise<string> {
 	const results = await run('hatch', ['env', 'find', name], { cwd: scope.fsPath })
-	const [p] = results.split('\n')
+	const [p] = results
+		.split('\n')
+		.map((line) => line.trim())
+		.filter((line) => line.length > 0)
 	return p
 }
 
