@@ -22,4 +22,4 @@ jobs:
           cache: yarn
       - run: yarn install --immutable
       - run: yarn run lint
-      - run: yarn build
+      - run: yarn vsce-package
