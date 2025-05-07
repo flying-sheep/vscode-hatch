@@ -12,7 +12,7 @@ import {
 import { HATCH_ID, HATCH_NAME } from './common/constants'
 import { type Deferred, createDeferred } from './common/deferred'
 import { isWindows } from './common/platform'
-import { ScopeMap } from './common/scopeMap'
+import { ScopeMap } from './common/scope-map'
 import * as hatch from './hatch-cli'
 import {
 	type DidChangeEnvironmentEventArgs,

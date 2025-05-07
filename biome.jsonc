@@ -12,6 +12,12 @@
 			"complexity": {
 				"useLiteralKeys": "off", // conflicts with tsconfig noPropertyAccessFromIndexSignature: https://github.com/biomejs/biome/issues/463
 			},
+			"style": {
+				"useFilenamingConvention": {
+					"level": "error",
+					"options": { "filenameCases": ["kebab-case"] },
+				},
+			},
 		},
 		"ignore": ["**/src/vscode-python-environments/*.ts"],
 	},
