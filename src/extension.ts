@@ -1,6 +1,6 @@
 import { type ExtensionContext, window } from 'vscode'
-import { HatchEnvManager } from './hatchEnvManager'
-import { getEnvExtApi } from './pythonEnvsApi'
+import { HatchEnvManager } from './hatch-env-manager'
+import { getEnvExtApi } from './python-envs-api'
 
 export async function activate(context: ExtensionContext) {
 	const log = window.createOutputChannel('Hatch', { log: true })
