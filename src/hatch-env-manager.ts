@@ -10,7 +10,7 @@ import {
 } from 'vscode'
 import { HATCH_ID, HATCH_NAME } from './common/constants'
 import { type Deferred, createDeferred } from './common/deferred'
-import { traceError, traceInfo, traceVerbose } from './common/logging'
+import { traceInfo, traceVerbose } from './common/logging'
 import { isWindows } from './common/platform'
 import { ScopeMap } from './common/scope-map'
 import * as hatch from './hatch-cli'
@@ -137,6 +137,9 @@ export class HatchEnvManager implements EnvironmentManager {
 				this.activeEnvs.delete(uri)
 			} else {
 				traceInfo('setting env %s for scope %s', env.displayName, uri?.fsPath)
+				if (uri) {
+					await hatch.createEnv(env.name, uri, { existOk: true })
+				}
 				const old = this.activeEnvs.get(uri)
 				this.activeEnvs.set(uri, env)
 				if (old?.envId.id !== env.envId.id) {
@@ -165,24 +168,30 @@ export class HatchEnvManager implements EnvironmentManager {
 					.flatMap((envs) => Array.from(envs.values()))
 					.find((env) => env.name === 'default')
 			}
+			if (env) {
+				// otherwise the python-environments extension goes haywire and calls `get` in a loop
+				// it also created 2 copies of my python project, one with one copy of the env and one with two
+				await this.set(scope, env)
+			}
 		}
 
 		if (scope && env && !(await fs.pathExists(env.environmentPath.fsPath))) {
-			try {
-				await hatch.createEnv(env.name, scope)
-			} catch (error) {
-				traceError('Failed to create env for scope %s: %s', scope?.fsPath, error)
-				return undefined
-			}
+			await hatch.createEnv(env.name, scope, { existOk: true })
 		}
 
 		traceInfo(`got env ${env?.displayName} for scope ${scope?.fsPath}`)
 		return env
 	}
-	//onDidChangeEnvironment: Event<DidChangeEnvironmentEventArgs> | undefined
-	async resolve(_context: ResolveEnvironmentContext): Promise<PythonEnvironment | undefined> {
-		throw new Error('resolve not implemented.')
+
+	async resolve(context: ResolveEnvironmentContext): Promise<PythonEnvironment | undefined> {
+		return Array.from(this.path2envs.values())
+			.flatMap((envs) => Array.from(envs.values()))
+			.find(
+				(env) =>
+					!paths.relative(env.environmentPath.fsPath, context.fsPath).startsWith('..'),
+			)
 	}
+
 	async clearCache(): Promise<void> {
 		this.path2envs.clear()
 	}
@@ -224,7 +233,7 @@ export class HatchEnvManager implements EnvironmentManager {
 	}
 
 	private hatch2pythonEnv({ name, conf, path }: hatch.HatchEnvInfo): PythonEnvironment {
-		const binPath = isWindows()
+		const executable = isWindows()
 			? paths.join(path, 'Scripts', 'python.exe')
 			: paths.join(path, 'bin', 'python')
 		return this.api.createPythonEnvironmentItem(
@@ -237,11 +246,7 @@ export class HatchEnvManager implements EnvironmentManager {
 				environmentPath: Uri.file(path),
 				sysPrefix: path,
 				version: '1', // TODO
-				execInfo: {
-					run: {
-						executable: binPath,
-					},
-				},
+				execInfo: { run: { executable } },
 			},
 			this,
 		)

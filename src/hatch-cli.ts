@@ -53,12 +53,17 @@ export async function findEnv(name: string, scope: Uri): Promise<string> {
 	return p
 }
 
-export async function createEnv(name: string, scope: Uri): Promise<void> {
-	run('hatch', ['env', 'create', name], { cwd: scope.fsPath })
+export async function createEnv(
+	name: string,
+	scope: Uri,
+	{ existOk = false }: { existOk?: boolean } = {},
+): Promise<void> {
+	const args = existOk ? ['-e', name, 'run', 'python', '-V'] : ['env', 'create', name]
+	await run('hatch', args, { cwd: scope.fsPath })
 }
 
 export async function removeEnv(name: string, scope: Uri): Promise<void> {
-	run('hatch', ['env', 'remove', name], { cwd: scope.fsPath })
+	await run('hatch', ['env', 'remove', name], { cwd: scope.fsPath })
 }
 
 async function run(cmd: string, args: string[], opts: ProcessEnvOptions): Promise<string> {
@@ -67,7 +72,7 @@ async function run(cmd: string, args: string[], opts: ProcessEnvOptions): Promis
 		return stdout
 	} catch (e) {
 		const err = e as ExecFileException
-		traceError(err.stderr)
+		traceError(err, err.stderr)
 		throw err
 	}
 }
