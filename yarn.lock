@@ -731,9 +731,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vscode/test-cli@npm:^0.0.10":
-  version: 0.0.10
-  resolution: "@vscode/test-cli@npm:0.0.10"
+"@vscode/test-cli@npm:^0.0.11":
+  version: 0.0.11
+  resolution: "@vscode/test-cli@npm:0.0.11"
   dependencies:
     "@types/mocha": "npm:^10.0.2"
     c8: "npm:^9.1.0"
@@ -741,12 +741,12 @@ __metadata:
     enhanced-resolve: "npm:^5.15.0"
     glob: "npm:^10.3.10"
     minimatch: "npm:^9.0.3"
-    mocha: "npm:^10.2.0"
+    mocha: "npm:^11.1.0"
     supports-color: "npm:^9.4.0"
     yargs: "npm:^17.7.2"
   bin:
     vscode-test: out/bin.mjs
-  checksum: 10/bcbdc3dfa01174021ee62863385ccd08876bb3dd28aff2c2fcc1e6e768725213d715d313a357d52be35355c4d76c0d04c684ab0a4a1312ec3ad92e6e14872128
+  checksum: 10/2651aea590edf0c05aa06e194ed4a4c8acb068ee80ad3362300bb6407fc64fd7ffbd7381f54b34fa90cc20a8bbfac9a73df58ff0e7dbba1150b6035357be911e
   languageName: node
   linkType: hard
 
@@ -982,13 +982,6 @@ __metadata:
     json-schema-traverse: "npm:^1.0.0"
     require-from-string: "npm:^2.0.2"
   checksum: 10/ee3c62162c953e91986c838f004132b6a253d700f1e51253b99791e2dbfdb39161bc950ebdc2f156f8568035bb5ed8be7bd78289cd9ecbf3381fe8f5b82e3f33
-  languageName: node
-  linkType: hard
-
-"ansi-colors@npm:^4.1.3":
-  version: 4.1.3
-  resolution: "ansi-colors@npm:4.1.3"
-  checksum: 10/43d6e2fc7b1c6e4dc373de708ee76311ec2e0433e7e8bd3194e7ff123ea6a747428fc61afdcf5969da5be3a5f0fd054602bec56fc0ebe249ce2fcde6e649e3c2
   languageName: node
   linkType: hard
 
@@ -1403,6 +1396,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chokidar@npm:^4.0.1":
+  version: 4.0.3
+  resolution: "chokidar@npm:4.0.3"
+  dependencies:
+    readdirp: "npm:^4.0.1"
+  checksum: 10/bf2a575ea5596000e88f5db95461a9d59ad2047e939d5a4aac59dd472d126be8f1c1ff3c7654b477cf532d18f42a97279ef80ee847972fd2a25410bf00b80b59
+  languageName: node
+  linkType: hard
+
 "chownr@npm:^1.1.1":
   version: 1.1.4
   resolution: "chownr@npm:1.1.4"
@@ -1712,10 +1714,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "diff@npm:5.2.0"
-  checksum: 10/01b7b440f83a997350a988e9d2f558366c0f90f15be19f4aa7f1bb3109a4e153dfc3b9fbf78e14ea725717017407eeaa2271e3896374a0181e8f52445740846d
+"diff@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "diff@npm:7.0.0"
+  checksum: 10/e9b8e48d054c9c0c093c65ce8e2637af94b35f2427001607b14e5e0589e534ea3413a7f91ebe6d7c5a1494ace49cb7c7c3972f442ddd96a4767ff091999a082e
   languageName: node
   linkType: hard
 
@@ -2238,7 +2240,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^10.2.2, glob@npm:^10.3.10":
+"glob@npm:^10.2.2, glob@npm:^10.3.10, glob@npm:^10.4.5":
   version: 10.4.5
   resolution: "glob@npm:10.4.5"
   dependencies:
@@ -2281,19 +2283,6 @@ __metadata:
     once: "npm:^1.3.0"
     path-is-absolute: "npm:^1.0.0"
   checksum: 10/59452a9202c81d4508a43b8af7082ca5c76452b9fcc4a9ab17655822e6ce9b21d4f8fbadabe4fe3faef448294cec249af305e2cd824b7e9aaf689240e5e96a7b
-  languageName: node
-  linkType: hard
-
-"glob@npm:^8.1.0":
-  version: 8.1.0
-  resolution: "glob@npm:8.1.0"
-  dependencies:
-    fs.realpath: "npm:^1.0.0"
-    inflight: "npm:^1.0.4"
-    inherits: "npm:2"
-    minimatch: "npm:^5.0.1"
-    once: "npm:^1.3.0"
-  checksum: 10/9aab1c75eb087c35dbc41d1f742e51d0507aa2b14c910d96fb8287107a10a22f4bbdce26fc0a3da4c69a20f7b26d62f1640b346a4f6e6becfff47f335bb1dc5e
   languageName: node
   linkType: hard
 
@@ -2407,7 +2396,7 @@ __metadata:
     "@types/mocha": "npm:^10.0.10"
     "@types/node": "npm:22.x"
     "@types/vscode": "npm:1.99.1"
-    "@vscode/test-cli": "npm:^0.0.10"
+    "@vscode/test-cli": "npm:^0.0.11"
     "@vscode/vsce": "npm:^3.4.2"
     depcheck: "npm:^1.4.7"
     fs-extra: "npm:11.3.0"
@@ -3267,15 +3256,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^5.0.1, minimatch@npm:^5.1.6":
-  version: 5.1.6
-  resolution: "minimatch@npm:5.1.6"
-  dependencies:
-    brace-expansion: "npm:^2.0.1"
-  checksum: 10/126b36485b821daf96d33b5c821dac600cc1ab36c87e7a532594f9b1652b1fa89a1eebcaad4dff17c764dce1a7ac1531327f190fed5f97d8f6e5f889c116c429
-  languageName: node
-  linkType: hard
-
 "minimatch@npm:^7.4.6":
   version: 7.4.6
   resolution: "minimatch@npm:7.4.6"
@@ -3285,7 +3265,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^9.0.3, minimatch@npm:^9.0.4":
+"minimatch@npm:^9.0.3, minimatch@npm:^9.0.4, minimatch@npm:^9.0.5":
   version: 9.0.5
   resolution: "minimatch@npm:9.0.5"
   dependencies:
@@ -3393,34 +3373,34 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mocha@npm:^10.2.0":
-  version: 10.8.2
-  resolution: "mocha@npm:10.8.2"
+"mocha@npm:^11.1.0":
+  version: 11.5.0
+  resolution: "mocha@npm:11.5.0"
   dependencies:
-    ansi-colors: "npm:^4.1.3"
     browser-stdout: "npm:^1.3.1"
-    chokidar: "npm:^3.5.3"
+    chokidar: "npm:^4.0.1"
     debug: "npm:^4.3.5"
-    diff: "npm:^5.2.0"
+    diff: "npm:^7.0.0"
     escape-string-regexp: "npm:^4.0.0"
     find-up: "npm:^5.0.0"
-    glob: "npm:^8.1.0"
+    glob: "npm:^10.4.5"
     he: "npm:^1.2.0"
     js-yaml: "npm:^4.1.0"
     log-symbols: "npm:^4.1.0"
-    minimatch: "npm:^5.1.6"
+    minimatch: "npm:^9.0.5"
     ms: "npm:^2.1.3"
+    picocolors: "npm:^1.1.1"
     serialize-javascript: "npm:^6.0.2"
     strip-json-comments: "npm:^3.1.1"
     supports-color: "npm:^8.1.1"
     workerpool: "npm:^6.5.1"
-    yargs: "npm:^16.2.0"
-    yargs-parser: "npm:^20.2.9"
+    yargs: "npm:^17.7.2"
+    yargs-parser: "npm:^21.1.1"
     yargs-unparser: "npm:^2.0.0"
   bin:
     _mocha: bin/_mocha
     mocha: bin/mocha.js
-  checksum: 10/903bbffcb195ef9d36b27db54e3462c5486de1397289e0953735b3530397a139336c452bcf5188c663496c660d2285bbb6c7213290d36d536ad647b6145cb917
+  checksum: 10/b0cd3be7c2721904f843c1ba8c283c45b38831a1cd9627b0f9a90b7581c8715c5d1f6c432c6771c4f8b150f70b8283288d4c9489469ef5599fe93ab11bd145f2
   languageName: node
   linkType: hard
 
@@ -4001,6 +3981,13 @@ __metadata:
   dependencies:
     picomatch: "npm:^2.2.1"
   checksum: 10/196b30ef6ccf9b6e18c4e1724b7334f72a093d011a99f3b5920470f0b3406a51770867b3e1ae9711f227ef7a7065982f6ee2ce316746b2cb42c88efe44297fe7
+  languageName: node
+  linkType: hard
+
+"readdirp@npm:^4.0.1":
+  version: 4.1.2
+  resolution: "readdirp@npm:4.1.2"
+  checksum: 10/7b817c265940dba90bb9c94d82920d76c3a35ea2d67f9f9d8bd936adcfe02d50c802b14be3dd2e725e002dddbe2cc1c7a0edfb1bc3a365c9dfd5a61e612eea1e
   languageName: node
   linkType: hard
 
@@ -5003,7 +4990,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs-parser@npm:^20.2.2, yargs-parser@npm:^20.2.9":
+"yargs-parser@npm:^20.2.2":
   version: 20.2.9
   resolution: "yargs-parser@npm:20.2.9"
   checksum: 10/0188f430a0f496551d09df6719a9132a3469e47fe2747208b1dd0ab2bb0c512a95d0b081628bbca5400fb20dbf2fabe63d22badb346cecadffdd948b049f3fcc
