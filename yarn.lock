@@ -551,12 +551,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@secretlint/secretlint-rule-no-dotenv@npm:^9.3.2, @secretlint/secretlint-rule-no-dotenv@npm:^9.3.3":
-  version: 9.3.3
-  resolution: "@secretlint/secretlint-rule-no-dotenv@npm:9.3.3"
+"@secretlint/secretlint-rule-no-dotenv@npm:^9.3.2, @secretlint/secretlint-rule-no-dotenv@npm:^9.3.4":
+  version: 9.3.4
+  resolution: "@secretlint/secretlint-rule-no-dotenv@npm:9.3.4"
   dependencies:
-    "@secretlint/types": "npm:^9.3.3"
-  checksum: 10/d1804fc148be11a59d3777eb1e70e9ae7f5ec561a550ab19ff4b3a1e9844acd22d4d5ca8364fd353742ade4ccd937cac2fd86d143dcb5ea2f049ef3c8d537047
+    "@secretlint/types": "npm:^9.3.4"
+  checksum: 10/ce5ab0cd78b2d1d227ef85aa8963fbad06fe511ec980e7344af56ed254235f23720144e3f336992ea66d7b11f0c52e20409df9363a42ada49f99e35b79b8eb64
   languageName: node
   linkType: hard
 
@@ -577,10 +577,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@secretlint/types@npm:^9.3.3":
-  version: 9.3.3
-  resolution: "@secretlint/types@npm:9.3.3"
-  checksum: 10/e9a96045ab6a5c19cd4828281e3cb962373f6d2bc8353b3b0c204a3771c93d4088384037d37e2e20ef6345a236004aab785dfba61ad0bc0b133e3afe6249f70d
+"@secretlint/types@npm:^9.3.3, @secretlint/types@npm:^9.3.4":
+  version: 9.3.4
+  resolution: "@secretlint/types@npm:9.3.4"
+  checksum: 10/1bb8a6e7d9128008d5b31d634c6c44335e53d60f917c3219b67dbe793f81a21c3fd9f3a7d895547cb419874463eedf6686c5b2bc2ebe68fd179b8a71d0524f31
   languageName: node
   linkType: hard
 
@@ -2390,7 +2390,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:^1.9.4"
     "@secretlint/secretlint-formatter-sarif": "npm:^9.3.3"
-    "@secretlint/secretlint-rule-no-dotenv": "npm:^9.3.3"
+    "@secretlint/secretlint-rule-no-dotenv": "npm:^9.3.4"
     "@secretlint/secretlint-rule-preset-recommend": "npm:^9.3.3"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/mocha": "npm:^10.0.10"
