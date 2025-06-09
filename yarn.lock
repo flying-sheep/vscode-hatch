@@ -560,10 +560,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@secretlint/secretlint-rule-preset-recommend@npm:^9.3.2, @secretlint/secretlint-rule-preset-recommend@npm:^9.3.3":
-  version: 9.3.3
-  resolution: "@secretlint/secretlint-rule-preset-recommend@npm:9.3.3"
-  checksum: 10/1d77ac7f5ba10c1850486afcbc80169d970a679be5fab156e46b62c84cb5ca7e5b2dd8f8a5331321446289d335e8f5a4789fbb97fd351dcd1470aab64a8eda84
+"@secretlint/secretlint-rule-preset-recommend@npm:^9.3.2, @secretlint/secretlint-rule-preset-recommend@npm:^9.3.4":
+  version: 9.3.4
+  resolution: "@secretlint/secretlint-rule-preset-recommend@npm:9.3.4"
+  checksum: 10/df6e4410a7efa25aa352e0cce54eee32c2ecabcbe3f0f32917216a02c2defb573f0c875acaec797798736244908b39885d7142877bb7104a802cc1ca5309f8a0
   languageName: node
   linkType: hard
 
@@ -2391,7 +2391,7 @@ __metadata:
     "@biomejs/biome": "npm:^1.9.4"
     "@secretlint/secretlint-formatter-sarif": "npm:^9.3.3"
     "@secretlint/secretlint-rule-no-dotenv": "npm:^9.3.3"
-    "@secretlint/secretlint-rule-preset-recommend": "npm:^9.3.3"
+    "@secretlint/secretlint-rule-preset-recommend": "npm:^9.3.4"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/mocha": "npm:^10.0.10"
     "@types/node": "npm:22.x"
