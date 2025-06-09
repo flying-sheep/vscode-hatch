@@ -542,12 +542,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@secretlint/secretlint-formatter-sarif@npm:^9.3.2, @secretlint/secretlint-formatter-sarif@npm:^9.3.3":
-  version: 9.3.3
-  resolution: "@secretlint/secretlint-formatter-sarif@npm:9.3.3"
+"@secretlint/secretlint-formatter-sarif@npm:^9.3.2, @secretlint/secretlint-formatter-sarif@npm:^9.3.4":
+  version: 9.3.4
+  resolution: "@secretlint/secretlint-formatter-sarif@npm:9.3.4"
   dependencies:
     node-sarif-builder: "npm:^2.0.3"
-  checksum: 10/4bb6b47e2e5d966fe5a855aa1da86ed6f16e3681a6037d215fe51ea52e4479b508e8b936b38f6eb4e2aa38997f85238c4720da6127e1e645e6663e5ee164085e
+  checksum: 10/fd5e6cd638609dcf675fcf77e8161edae3629db238c7843f8f6529fb83781781a6a9ff4ce067af7f05ffcccfe196f6f544cb68bbdf7c6fa2cc62feb81b7cbb29
   languageName: node
   linkType: hard
 
@@ -2389,7 +2389,7 @@ __metadata:
   resolution: "hatch@workspace:."
   dependencies:
     "@biomejs/biome": "npm:^1.9.4"
-    "@secretlint/secretlint-formatter-sarif": "npm:^9.3.3"
+    "@secretlint/secretlint-formatter-sarif": "npm:^9.3.4"
     "@secretlint/secretlint-rule-no-dotenv": "npm:^9.3.3"
     "@secretlint/secretlint-rule-preset-recommend": "npm:^9.3.3"
     "@types/fs-extra": "npm:^11.0.4"
