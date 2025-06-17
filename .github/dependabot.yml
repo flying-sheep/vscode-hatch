@@ -5,3 +5,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      vsce:
+        dependency-type: development
+        patterns:
+          - '@vscode/vsce'
+          - '@secretlint/*'
