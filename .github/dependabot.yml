@@ -5,6 +5,8 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: '@types/vscode'  # needs to match engines.vscode
     groups:
       vsce:
         dependency-type: development
