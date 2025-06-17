@@ -745,10 +745,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/vscode@npm:1.99.1":
-  version: 1.99.1
-  resolution: "@types/vscode@npm:1.99.1"
-  checksum: 10/0d9b2617f1164bd283529f3670abedc06db39dd022a501459eb3724e68a24f9304004b3f37b0621783f2540bc0c0294742fa010f68f83507aa24f23eb7bfb8ef
+"@types/vscode@npm:1.101.0":
+  version: 1.101.0
+  resolution: "@types/vscode@npm:1.101.0"
+  checksum: 10/b3b6f4323a0480a2e3951eb1a8adbc6994688e8760a6314c3e62218cb5c02eec676f32a7bcb2903e0fcac4bed7a5d7b29a7f0cfc8295e6e0835ee332dde1ee63
   languageName: node
   linkType: hard
 
@@ -2388,7 +2388,7 @@ __metadata:
     "@types/fs-extra": "npm:^11.0.4"
     "@types/mocha": "npm:^10.0.10"
     "@types/node": "npm:24.x"
-    "@types/vscode": "npm:1.99.1"
+    "@types/vscode": "npm:1.101.0"
     "@vscode/test-cli": "npm:^0.0.11"
     "@vscode/vsce": "npm:^3.5.0"
     depcheck: "npm:^1.4.7"
