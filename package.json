@@ -40,7 +40,7 @@
 		"fs-extra": "11.3.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
+		"@biomejs/biome": "^2.0.5",
 		"@secretlint/secretlint-formatter-sarif": "^10.1.0",
 		"@secretlint/secretlint-rule-no-dotenv": "^10.1.0",
 		"@secretlint/secretlint-rule-preset-recommend": "^10.1.0",
