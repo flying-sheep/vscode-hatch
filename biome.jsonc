@@ -5,7 +5,7 @@
 		"clientKind": "git",
 		"useIgnoreFile": true,
 	},
-	"files": { "ignores": [".yarn/**"] },
+	"files": { "ignore": [".yarn/**"] },
 	"formatter": { "useEditorconfig": true },
 	"linter": {
 		"rules": {
@@ -19,7 +19,7 @@
 				},
 			},
 		},
-		"ignores": ["**/src/vscode-python-environments/*.ts"],
+		"ignore": ["**/src/vscode-python-environments/*.ts"],
 	},
 	"javascript": {
 		"formatter": {
@@ -29,7 +29,7 @@
 	},
 	"overrides": [
 		{
-			"include": [".vscode/*.json", "tsconfig.json", "**/*.jsonc"],
+			"includes": [".vscode/*.json", "tsconfig.json", "**/*.jsonc"],
 			"json": {
 				"formatter": {
 					"trailingCommas": "all",
