@@ -1,11 +1,11 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
 		"useIgnoreFile": true,
 	},
-	"files": { "ignore": [".yarn/**"] },
+	"files": { "includes": ["**", "!.yarn/**"] },
 	"formatter": { "useEditorconfig": true },
 	"linter": {
 		"rules": {
@@ -19,7 +19,7 @@
 				},
 			},
 		},
-		"ignore": ["**/src/vscode-python-environments/*.ts"],
+		"includes": ["**", "!**/src/vscode-python-environments/*.ts"],
 	},
 	"javascript": {
 		"formatter": {
@@ -29,7 +29,7 @@
 	},
 	"overrides": [
 		{
-			"include": [".vscode/*.json", "tsconfig.json", "**/*.jsonc"],
+			"includes": [".vscode/*.json", "tsconfig.json", "**/*.jsonc"],
 			"json": {
 				"formatter": {
 					"trailingCommas": "all",

@@ -7,13 +7,17 @@
 	"engines": {
 		"vscode": "^1.99.0"
 	},
-	"categories": ["Other"],
+	"categories": [
+		"Other"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/flying-sheep/vscode-hatch.git"
 	},
 	"publisher": "flying-sheep",
-	"extensionDependencies": ["ms-python.vscode-python-envs"],
+	"extensionDependencies": [
+		"ms-python.vscode-python-envs"
+	],
 	"activationEvents": [
 		"onLanguage:python",
 		"workspaceContains:**/hatch.toml",
@@ -40,7 +44,7 @@
 		"fs-extra": "11.3.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
+		"@biomejs/biome": "^2.1.1",
 		"@secretlint/secretlint-formatter-sarif": "^10.2.0",
 		"@secretlint/secretlint-rule-no-dotenv": "^10.2.0",
 		"@secretlint/secretlint-rule-preset-recommend": "^10.2.0",

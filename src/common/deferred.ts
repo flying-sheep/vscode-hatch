@@ -10,7 +10,9 @@ export interface Deferred<T> {
 class DeferredImpl<T> implements Deferred<T> {
 	promise: Promise<T>
 	private _resolve!: (value: T | PromiseLike<T>) => void
-	private _reject!: (reason?: string | Error | Record<string, unknown> | unknown) => void
+	private _reject!: (
+		reason?: string | Error | Record<string, unknown> | unknown,
+	) => void
 	resolved = false
 	rejected = false
 	completed = false
