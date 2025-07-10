@@ -1,7 +1,7 @@
 import {
 	type ExecFileException,
-	type ProcessEnvOptions,
 	execFile as execFileCb,
+	type ProcessEnvOptions,
 } from 'node:child_process'
 import { promisify } from 'node:util'
 import type { Uri } from 'vscode'
@@ -33,7 +33,9 @@ export interface HatchEnvConf {
 }
 
 export async function getEnvs(scope: Uri): Promise<HatchEnvInfo[]> {
-	const json = await run('hatch', ['env', 'show', '--json'], { cwd: scope.fsPath })
+	const json = await run('hatch', ['env', 'show', '--json'], {
+		cwd: scope.fsPath,
+	})
 	const envs = JSON.parse(json) as { [name: string]: HatchEnvConf }
 	return await Promise.all(
 		Object.entries(envs).map(async ([name, conf]) => ({
@@ -45,7 +47,9 @@ export async function getEnvs(scope: Uri): Promise<HatchEnvInfo[]> {
 }
 
 export async function findEnv(name: string, scope: Uri): Promise<string> {
-	const results = await run('hatch', ['env', 'find', name], { cwd: scope.fsPath })
+	const results = await run('hatch', ['env', 'find', name], {
+		cwd: scope.fsPath,
+	})
 	const [p] = results
 		.split('\n')
 		.map((line) => line.trim())
@@ -58,7 +62,9 @@ export async function createEnv(
 	scope: Uri,
 	{ existOk = false }: { existOk?: boolean } = {},
 ): Promise<void> {
-	const args = existOk ? ['-e', name, 'run', 'python', '-V'] : ['env', 'create', name]
+	const args = existOk
+		? ['-e', name, 'run', 'python', '-V']
+		: ['env', 'create', name]
 	await run('hatch', args, { cwd: scope.fsPath })
 }
 
@@ -66,7 +72,11 @@ export async function removeEnv(name: string, scope: Uri): Promise<void> {
 	await run('hatch', ['env', 'remove', name], { cwd: scope.fsPath })
 }
 
-async function run(cmd: string, args: string[], opts: ProcessEnvOptions): Promise<string> {
+async function run(
+	cmd: string,
+	args: string[],
+	opts: ProcessEnvOptions,
+): Promise<string> {
 	try {
 		const { stdout } = await execFile(cmd, args, opts)
 		return stdout

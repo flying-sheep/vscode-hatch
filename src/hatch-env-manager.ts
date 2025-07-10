@@ -9,7 +9,7 @@ import {
 	window,
 } from 'vscode'
 import { HATCH_ID, HATCH_NAME } from './common/constants'
-import { type Deferred, createDeferred } from './common/deferred'
+import { createDeferred, type Deferred } from './common/deferred'
 import { traceInfo, traceVerbose } from './common/logging'
 import { isWindows } from './common/platform'
 import { ScopeMap } from './common/scope-map'
@@ -33,10 +33,12 @@ export class HatchEnvManager implements EnvironmentManager {
 	readonly name: string = HATCH_ID
 	readonly displayName: string = HATCH_NAME
 
-	private readonly _onDidChangeEnvironment = new EventEmitter<DidChangeEnvironmentEventArgs>()
+	private readonly _onDidChangeEnvironment =
+		new EventEmitter<DidChangeEnvironmentEventArgs>()
 	readonly onDidChangeEnvironment = this._onDidChangeEnvironment.event
 
-	private readonly _onDidChangeEnvironments = new EventEmitter<DidChangeEnvironmentsEventArgs>()
+	private readonly _onDidChangeEnvironments =
+		new EventEmitter<DidChangeEnvironmentsEventArgs>()
 	readonly onDidChangeEnvironments = this._onDidChangeEnvironments.event
 
 	// The ms-python `pip` package manager uses `uv` when available internally.
@@ -98,7 +100,9 @@ export class HatchEnvManager implements EnvironmentManager {
 		)
 	}
 
-	async getEnvironments(scope: GetEnvironmentsScope): Promise<PythonEnvironment[]> {
+	async getEnvironments(
+		scope: GetEnvironmentsScope,
+	): Promise<PythonEnvironment[]> {
 		await this.initialize()
 
 		if (scope === 'global') {
@@ -108,8 +112,8 @@ export class HatchEnvManager implements EnvironmentManager {
 
 		if (scope === 'all') {
 			traceVerbose("getEnvironments called with scope 'all'")
-			const allEnvs = Array.from(this.path2envs.values()).flatMap((envs) =>
-				Array.from(envs.values()),
+			const allEnvs = Array.from(this.path2envs.values()).flatMap(
+				(envs) => Array.from(envs.values()),
 			)
 			traceVerbose('Found %d environments in cache', allEnvs.length)
 			return allEnvs
@@ -120,23 +124,34 @@ export class HatchEnvManager implements EnvironmentManager {
 			return []
 		}
 
-		const cachedEnvs = Array.from(this.path2envs.get(project.uri.fsPath)?.values() ?? [])
+		const cachedEnvs = Array.from(
+			this.path2envs.get(project.uri.fsPath)?.values() ?? [],
+		)
 		const uncached = !this.path2envs.has(project.uri.fsPath)
 		if (!uncached) {
 			traceInfo('Found %d cached envs', cachedEnvs.length)
 			return cachedEnvs
 		}
 		await this.fetchEnvsForProjects([project])
-		return Array.from(this.path2envs.get(project.uri.fsPath)?.values() ?? [])
+		return Array.from(
+			this.path2envs.get(project.uri.fsPath)?.values() ?? [],
+		)
 	}
 
-	async set(scope: SetEnvironmentScope, env?: PythonEnvironment): Promise<void> {
+	async set(
+		scope: SetEnvironmentScope,
+		env?: PythonEnvironment,
+	): Promise<void> {
 		for (const uri of Array.isArray(scope) ? scope : [scope]) {
 			if (!env) {
 				traceInfo('unsetting env for scope %s', uri?.fsPath)
 				this.activeEnvs.delete(uri)
 			} else {
-				traceInfo('setting env %s for scope %s', env.displayName, uri?.fsPath)
+				traceInfo(
+					'setting env %s for scope %s',
+					env.displayName,
+					uri?.fsPath,
+				)
 				if (uri) {
 					await hatch.createEnv(env.name, uri, { existOk: true })
 				}
@@ -153,16 +168,18 @@ export class HatchEnvManager implements EnvironmentManager {
 		}
 	}
 
-	async get(scope: GetEnvironmentScope): Promise<PythonEnvironment | undefined> {
+	async get(
+		scope: GetEnvironmentScope,
+	): Promise<PythonEnvironment | undefined> {
 		await this.initialize()
 
 		let env = this.activeEnvs.get(scope)
 		if (!env) {
 			// If no active environment is set, try to find the default environment for the scope.
 			if (scope) {
-				env = Array.from(this.path2envs.get(scope.fsPath)?.values() ?? []).find(
-					(env) => env.name === 'default',
-				)
+				env = Array.from(
+					this.path2envs.get(scope.fsPath)?.values() ?? [],
+				).find((env) => env.name === 'default')
 			} else {
 				env = Array.from(this.path2envs.values())
 					.flatMap((envs) => Array.from(envs.values()))
@@ -175,7 +192,11 @@ export class HatchEnvManager implements EnvironmentManager {
 			}
 		}
 
-		if (scope && env && !(await fs.pathExists(env.environmentPath.fsPath))) {
+		if (
+			scope &&
+			env &&
+			!(await fs.pathExists(env.environmentPath.fsPath))
+		) {
 			await hatch.createEnv(env.name, scope, { existOk: true })
 		}
 
@@ -183,12 +204,16 @@ export class HatchEnvManager implements EnvironmentManager {
 		return env
 	}
 
-	async resolve(context: ResolveEnvironmentContext): Promise<PythonEnvironment | undefined> {
+	async resolve(
+		context: ResolveEnvironmentContext,
+	): Promise<PythonEnvironment | undefined> {
 		return Array.from(this.path2envs.values())
 			.flatMap((envs) => Array.from(envs.values()))
 			.find(
 				(env) =>
-					!paths.relative(env.environmentPath.fsPath, context.fsPath).startsWith('..'),
+					!paths
+						.relative(env.environmentPath.fsPath, context.fsPath)
+						.startsWith('..'),
 			)
 	}
 
@@ -197,7 +222,9 @@ export class HatchEnvManager implements EnvironmentManager {
 	}
 
 	/** Fetches environments for a list of projects and updates the cache */
-	async fetchEnvsForProjects(projects: readonly PythonProject[]): Promise<void> {
+	async fetchEnvsForProjects(
+		projects: readonly PythonProject[],
+	): Promise<void> {
 		const before = Array.from(this.path2envs.values())
 			.flatMap((envs) => Array.from(envs.values()))
 			.map((env) => ({
@@ -207,14 +234,22 @@ export class HatchEnvManager implements EnvironmentManager {
 
 		const envsPerProj = await Promise.all(
 			projects.map(
-				async (project) => [project.uri.fsPath, await hatch.getEnvs(project.uri)] as const,
+				async (project) =>
+					[
+						project.uri.fsPath,
+						await hatch.getEnvs(project.uri),
+					] as const,
 			),
 		)
 
 		const pyEnvsPerProj = new Map(
 			envsPerProj.map(([path, envs]) => [
 				path,
-				new Map(envs.map(this.hatch2pythonEnv.bind(this)).map((env) => [env.name, env])),
+				new Map(
+					envs
+						.map(this.hatch2pythonEnv.bind(this))
+						.map((env) => [env.name, env]),
+				),
 			]),
 		)
 
@@ -232,7 +267,11 @@ export class HatchEnvManager implements EnvironmentManager {
 		this._onDidChangeEnvironments.fire([...before, ...after])
 	}
 
-	private hatch2pythonEnv({ name, conf, path }: hatch.HatchEnvInfo): PythonEnvironment {
+	private hatch2pythonEnv({
+		name,
+		conf,
+		path,
+	}: hatch.HatchEnvInfo): PythonEnvironment {
 		const executable = isWindows()
 			? paths.join(path, 'Scripts', 'python.exe')
 			: paths.join(path, 'bin', 'python')

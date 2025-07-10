@@ -8,7 +8,9 @@ export async function getEnvExtApi(): Promise<PythonEnvironmentApi> {
 	if (_extApi) {
 		return _extApi
 	}
-	const extension = vscode.extensions.getExtension('ms-python.vscode-python-envs')
+	const extension = vscode.extensions.getExtension(
+		'ms-python.vscode-python-envs',
+	)
 	if (!extension) {
 		throw new Error('Python Environments extension not found.')
 	}

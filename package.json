@@ -7,13 +7,17 @@
 	"engines": {
 		"vscode": "^1.99.0"
 	},
-	"categories": ["Other"],
+	"categories": [
+		"Other"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/flying-sheep/vscode-hatch.git"
 	},
 	"publisher": "flying-sheep",
-	"extensionDependencies": ["ms-python.vscode-python-envs"],
+	"extensionDependencies": [
+		"ms-python.vscode-python-envs"
+	],
 	"activationEvents": [
 		"onLanguage:python",
 		"workspaceContains:**/hatch.toml",
