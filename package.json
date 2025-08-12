@@ -41,7 +41,7 @@
 		"*": "biome check --no-errors-on-unmatched --files-ignore-unknown=true --write"
 	},
 	"dependencies": {
-		"fs-extra": "11.3.0"
+		"fs-extra": "11.3.1"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.1.2",
