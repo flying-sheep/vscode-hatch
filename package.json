@@ -57,7 +57,7 @@
 		"depcheck": "^1.4.7",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.2.3",
-		"typescript": "^5.9.2"
+		"typescript": "^5.9.3"
 	},
 	"packageManager": "yarn@4.9.1"
 }
