@@ -45,9 +45,9 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.6",
-		"@secretlint/secretlint-formatter-sarif": "^11.2.4",
-		"@secretlint/secretlint-rule-no-dotenv": "^11.2.4",
-		"@secretlint/secretlint-rule-preset-recommend": "^11.2.4",
+		"@secretlint/secretlint-formatter-sarif": "^11.2.5",
+		"@secretlint/secretlint-rule-no-dotenv": "^11.2.5",
+		"@secretlint/secretlint-rule-preset-recommend": "^11.2.5",
 		"@types/fs-extra": "^11.0.4",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "24.x",
