@@ -53,7 +53,7 @@
 		"@types/node": "24.x",
 		"@types/vscode": "1.99.1",
 		"@vscode/test-cli": "^0.0.12",
-		"@vscode/vsce": "^3.7.0",
+		"@vscode/vsce": "^3.7.1",
 		"depcheck": "^1.4.7",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.2.7",
