@@ -44,7 +44,7 @@
 		"fs-extra": "11.3.3"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.3.9",
+		"@biomejs/biome": "^2.3.10",
 		"@secretlint/secretlint-formatter-sarif": "^11.2.5",
 		"@secretlint/secretlint-rule-no-dotenv": "^11.2.5",
 		"@secretlint/secretlint-rule-preset-recommend": "^11.2.5",
