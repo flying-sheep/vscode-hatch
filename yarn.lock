@@ -551,12 +551,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@secretlint/secretlint-formatter-sarif@npm:^11.2.5":
-  version: 11.2.5
-  resolution: "@secretlint/secretlint-formatter-sarif@npm:11.2.5"
+"@secretlint/secretlint-formatter-sarif@npm:^11.3.0":
+  version: 11.3.0
+  resolution: "@secretlint/secretlint-formatter-sarif@npm:11.3.0"
   dependencies:
-    node-sarif-builder: "npm:^3.2.0"
-  checksum: 10/8bab53d19138f4e0711de75983dcc490d81b6b3a3d48a08fd8b6a15409c028cfa2feadfa282a0d916881abb6f052302518970aac276c7b33a916069dd1a5845a
+    node-sarif-builder: "npm:^3.4.0"
+  checksum: 10/480cc2072c3887fd71152dcca8e41652ee158b7d624b4a8012460d01e3f14a74bfbd10473048191838a713f8d1a2e47b8f4dacd366d51378528220a75023fa09
   languageName: node
   linkType: hard
 
@@ -569,12 +569,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@secretlint/secretlint-rule-no-dotenv@npm:^11.2.5":
-  version: 11.2.5
-  resolution: "@secretlint/secretlint-rule-no-dotenv@npm:11.2.5"
+"@secretlint/secretlint-rule-no-dotenv@npm:^11.3.0":
+  version: 11.3.0
+  resolution: "@secretlint/secretlint-rule-no-dotenv@npm:11.3.0"
   dependencies:
-    "@secretlint/types": "npm:11.2.5"
-  checksum: 10/0867423fba71f9ac1e53accaf25d62117ab1d713c5dd05574f502818395830cdc3bdf83eb28f21c0eb931a245217582acf0ebbd87208d5c90df5c93d86967661
+    "@secretlint/types": "npm:11.3.0"
+  checksum: 10/0b2be5ee915c561899367375f4661ae79822c421655ce84f7b43bc0a63366963537d885239ee3aaad1c3a588c526f6e35da85bfbb198d51934a43564c51efe3f
   languageName: node
   linkType: hard
 
@@ -585,10 +585,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@secretlint/secretlint-rule-preset-recommend@npm:^11.2.5":
-  version: 11.2.5
-  resolution: "@secretlint/secretlint-rule-preset-recommend@npm:11.2.5"
-  checksum: 10/043f5c588aa7910e4f0547de129ca0fa8c3b5ec4358278ce55a26c60b077422fa3accd0d2cddbeb7e8122e22ffc3b570d76a2723874699e32f5ca0bc12ccf7d4
+"@secretlint/secretlint-rule-preset-recommend@npm:^11.3.0":
+  version: 11.3.0
+  resolution: "@secretlint/secretlint-rule-preset-recommend@npm:11.3.0"
+  checksum: 10/d4d467ba1aa14623aa68d0eef026628398aaefacb69a0dd0c54bc58f81fc266a8cad548c8a972d879b84e8db6a012c468f753a84f195d6857a49ccbaaeb0a659
   languageName: node
   linkType: hard
 
@@ -602,10 +602,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@secretlint/types@npm:11.2.5":
-  version: 11.2.5
-  resolution: "@secretlint/types@npm:11.2.5"
-  checksum: 10/2bcb8fd5b304bbfadbf5998e20721f1dcbec0399c26f2e2368c84fb5b08cedce314f8de12ede133f7944ca853fa8bc3d681e61d0e5577af35449bc48aa5296d7
+"@secretlint/types@npm:11.3.0":
+  version: 11.3.0
+  resolution: "@secretlint/types@npm:11.3.0"
+  checksum: 10/9717a0bc222b1c0ab0316f08e4892a61530d7b2e096477c6f538e6e002d595d794d7511bc5542b11992cfb13274e03d48933f7754ffe890a164b87c6d5543051
   languageName: node
   linkType: hard
 
@@ -2329,9 +2329,9 @@ __metadata:
   resolution: "hatch@workspace:."
   dependencies:
     "@biomejs/biome": "npm:^2.3.11"
-    "@secretlint/secretlint-formatter-sarif": "npm:^11.2.5"
-    "@secretlint/secretlint-rule-no-dotenv": "npm:^11.2.5"
-    "@secretlint/secretlint-rule-preset-recommend": "npm:^11.2.5"
+    "@secretlint/secretlint-formatter-sarif": "npm:^11.3.0"
+    "@secretlint/secretlint-rule-no-dotenv": "npm:^11.3.0"
+    "@secretlint/secretlint-rule-preset-recommend": "npm:^11.3.0"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/mocha": "npm:^10.0.10"
     "@types/node": "npm:25.x"
@@ -3407,13 +3407,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-sarif-builder@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "node-sarif-builder@npm:3.2.0"
+"node-sarif-builder@npm:^3.2.0, node-sarif-builder@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "node-sarif-builder@npm:3.4.0"
   dependencies:
     "@types/sarif": "npm:^2.1.7"
     fs-extra: "npm:^11.1.1"
-  checksum: 10/8f31c1923edb552a772dd6e560e52a7e321f2c0442d348d51ecdaf3c9a980be7e3ec8606a8f94e862292872dc9fbf955e135f44407f9cc2488d830fc406dc393
+  checksum: 10/13a15622ad6b3ea388e0d7c59b1d9077f98e87042ac6a5a5052489cf4de2fe50b2b85b074a24ee2db556f027c35bccf0be984ad23a8efd02131dcb53079ff53a
   languageName: node
   linkType: hard
 
