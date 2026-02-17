@@ -21,6 +21,7 @@ import {
 	type EnvironmentManager,
 	type GetEnvironmentScope,
 	type GetEnvironmentsScope,
+	type PythonCommandRunConfiguration,
 	type PythonEnvironment,
 	type PythonEnvironmentApi,
 	type PythonProject,
@@ -275,6 +276,15 @@ export class HatchEnvManager implements EnvironmentManager {
 		const executable = isWindows()
 			? paths.join(path, 'Scripts', 'python.exe')
 			: paths.join(path, 'bin', 'python')
+
+		const shellActivation: Map<string, PythonCommandRunConfiguration[]> = new Map()
+		const shellDeactivation: Map<string, PythonCommandRunConfiguration[]> = new Map()
+
+		shellActivation.set('unknown', [
+			{ executable: 'hatch', args: ['shell', '--name', `"${name}"`] },
+		])
+		shellDeactivation.set('unknown', [{ executable: 'exit' }])
+
 		return this.api.createPythonEnvironmentItem(
 			{
 				name,
@@ -282,10 +292,10 @@ export class HatchEnvManager implements EnvironmentManager {
 				displayName: name,
 				displayPath: path,
 				tooltip: path,
-				environmentPath: Uri.file(path),
+				environmentPath: Uri.file(executable),
 				sysPrefix: path,
-				version: '1', // TODO
-				execInfo: { run: { executable } },
+				version: '3', // TODO
+				execInfo: { run: { executable }, shellActivation, shellDeactivation },
 			},
 			this,
 		)
