@@ -39,6 +39,21 @@ export interface HatchEnvironment extends PythonEnvironment {
 	hatch: hatch.HatchEnvInfo
 }
 
+export function isHatchEnv(
+	env?: PythonEnvironment | undefined,
+): env is HatchEnvironment {
+	return env !== undefined && 'hatch' in env
+}
+
+function syncHatchEnv(
+	environment: HatchEnvironment,
+	fspath: string,
+): Promise<void> {
+	return hatch.createEnv(environment.hatch.name, fspath, {
+		existOk: true,
+	})
+}
+
 export class HatchEnvManager implements EnvironmentManager {
 	#globalEnv: PythonEnvironment | undefined
 	#activeEnv = new Map<string, PythonEnvironment>() // Selected environment for each project
@@ -165,7 +180,6 @@ export class HatchEnvManager implements EnvironmentManager {
 		}
 
 		const uris = scope instanceof Uri ? [scope] : scope
-
 		for (const uri of uris) {
 			const project = this.#api.getPythonProject(uri)
 			if (!project) {
@@ -173,6 +187,16 @@ export class HatchEnvManager implements EnvironmentManager {
 			}
 
 			const projectPath = project.uri.fsPath
+			if (isHatchEnv(environment)) {
+				await window.withProgress(
+					{
+						location: ProgressLocation.Notification,
+						title: 'Syncing hatch environment',
+						cancellable: false,
+					},
+					() => syncHatchEnv(environment, projectPath),
+				)
+			}
 			const oldEnv = this.#activeEnv.get(projectPath)
 
 			if (environment) {

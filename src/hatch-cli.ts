@@ -55,13 +55,13 @@ export async function findEnv(name: string, cwd: string): Promise<string> {
 
 export async function createEnv(
 	name: string,
-	scope: Uri,
+	fspath: string,
 	{ existOk = false }: { existOk?: boolean } = {},
 ): Promise<void> {
 	const args = existOk
 		? ['-e', name, 'run', 'python', '-V']
 		: ['env', 'create', name]
-	await run('hatch', args, { cwd: scope.fsPath })
+	await run('hatch', args, { cwd: fspath })
 }
 
 export async function removeEnv(name: string, scope: Uri): Promise<void> {
