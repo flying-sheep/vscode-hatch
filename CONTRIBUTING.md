@@ -13,3 +13,11 @@ The scripts in `packagage.json` are used to manage this project.
   - `lint:check` runs the Biome linter and formatter.
   - `lint:deps` runs `depcheck` to see if we have superfluous dependencies.
 - `vsce-package` builds the VS Code extension.
+
+## updating the logo
+- edit `assets/hatch-logo.fig` with Figma
+- export to SVG
+- convert to font using https://icomoon.io/
+- replace `assets/hatch-logo.woff2`
+
+(The logo.png is a copy of the regular Hatch logo, resized to 128px.)

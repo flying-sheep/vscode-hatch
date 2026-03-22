@@ -15,6 +15,7 @@
 		"url": "https://github.com/flying-sheep/vscode-hatch.git"
 	},
 	"publisher": "flying-sheep",
+	"icon": "./assets/logo.png",
 	"extensionDependencies": [
 		"ms-python.vscode-python-envs"
 	],
@@ -23,6 +24,17 @@
 		"workspaceContains:**/hatch.toml",
 		"workspaceContains:**/pyproject.toml"
 	],
+	"contributes": {
+		"icons": {
+			"hatch-logo": {
+				"description": "Hatch Logo",
+				"default": {
+					"fontPath": "./assets/logo-symbolic.woff2",
+					"fontCharacter": "\\F000"
+				}
+			}
+		}
+	},
 	"main": "./out/extension.js",
 	"scripts": {
 		"postinstall": "$npm_execpath run husky && $npm_execpath run sync",

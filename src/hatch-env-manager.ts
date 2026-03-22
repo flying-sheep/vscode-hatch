@@ -76,7 +76,7 @@ export class HatchEnvManager implements EnvironmentManager {
 		this.displayName = HATCH_NAME
 		this.preferredPackageManagerId = 'ms-python.python:uv' // HATCH_MANAGER_ID
 		this.tooltip = 'Hatch Environment Manager'
-		this.iconPath = new ThemeIcon('prefix-dev')
+		this.iconPath = new ThemeIcon('hatch-logo')
 	}
 
 	readonly #api: PythonEnvironmentApi
