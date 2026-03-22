@@ -23,3 +23,12 @@ jobs:
       - run: yarn install --immutable
       - run: yarn run lint
       - run: yarn vsce-package
+  check:
+    if: always()
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
