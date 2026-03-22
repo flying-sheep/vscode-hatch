@@ -1,1 +1,1 @@
-yarn run lint-staged
+fnm exec --using=lts-latest yarn run lint-staged

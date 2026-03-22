@@ -59,7 +59,7 @@ export class HatchEnvManager implements EnvironmentManager {
 		this.#api = api
 		this.name = HATCH_ID
 		this.displayName = HATCH_NAME
-		this.preferredPackageManagerId = HATCH_MANAGER_ID
+		this.preferredPackageManagerId = 'ms-python.python:uv' // HATCH_MANAGER_ID
 		this.tooltip = 'Hatch Environment Manager'
 		this.iconPath = new ThemeIcon('prefix-dev')
 	}
@@ -246,7 +246,7 @@ export class HatchEnvManager implements EnvironmentManager {
 					projects.map((p) => [p.uri.fsPath, p]),
 				)
 
-				const searchPathRoots = [] as const //await resolvePixiProjectPaths();
+				const searchPathRoots = [] as const //await resolveHatchProjectPaths();
 				const projectPaths = new Set([
 					...projectMap.keys(),
 					...searchPathRoots,
