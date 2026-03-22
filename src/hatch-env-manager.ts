@@ -9,7 +9,7 @@ import {
 	Uri,
 	window,
 } from 'vscode'
-import { HATCH_ID, HATCH_MANAGER_ID, HATCH_NAME } from './common/constants'
+import { HATCH_ID, HATCH_NAME } from './common/constants'
 import { createDeferred, type Deferred } from './common/deferred'
 import { traceVerbose } from './common/logging'
 import { isWindows } from './common/platform'
