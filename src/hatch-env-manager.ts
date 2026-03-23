@@ -386,11 +386,13 @@ export class HatchEnvManager implements EnvironmentManager {
 			? paths.join(path, 'Scripts', 'python.exe')
 			: paths.join(path, 'bin', 'python')
 
-		const shellActivation: Map<string, PythonCommandRunConfiguration[]> = new Map()
-		const shellDeactivation: Map<string, PythonCommandRunConfiguration[]> = new Map()
+		const shellActivation: Map<string, PythonCommandRunConfiguration[]> =
+			new Map()
+		const shellDeactivation: Map<string, PythonCommandRunConfiguration[]> =
+			new Map()
 
 		shellActivation.set('unknown', [
-			{ executable: 'hatch', args: ['shell', '--name', `"${name}"`] },
+			{ executable: 'hatch', args: [`--env=${name}`, 'shell'] },
 		])
 		shellDeactivation.set('unknown', [{ executable: 'exit' }])
 
@@ -403,7 +405,11 @@ export class HatchEnvManager implements EnvironmentManager {
 			environmentPath: Uri.file(path),
 			sysPrefix: path,
 			version: '1', // TODO
-      execInfo: { run: { executable }, shellActivation, shellDeactivation },
+			execInfo: {
+				run: { executable },
+				shellActivation,
+				shellDeactivation,
+			},
 		}
 		// make sure `getCallingExtension` leads to the correct managerId
 		const {
