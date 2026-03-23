@@ -12,14 +12,23 @@ jobs:
       fail-fast: false
       matrix:
         node-version:
-          - '22'
+          - '24'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: corepack enable
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: yarn
       - run: yarn install --immutable
       - run: yarn run lint
       - run: yarn vsce-package
+  check:
+    if: always()
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}

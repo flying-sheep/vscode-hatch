@@ -1,5 +1,6 @@
 import { type ExtensionContext, window } from 'vscode'
 import { registerLogger } from './common/logging'
+import { setWorkspacePersistentState } from './common/persistent-state'
 import { HatchEnvManager } from './hatch-env-manager'
 import { getEnvExtApi } from './python-envs-api'
 
@@ -9,7 +10,8 @@ export async function activate(context: ExtensionContext) {
 	context.subscriptions.push(log, registerLogger(log))
 
 	const api = await getEnvExtApi()
-	const envManager = new HatchEnvManager(api)
+	await setWorkspacePersistentState(context) // resolves instantly
+	const envManager = new HatchEnvManager(api, log)
 	context.subscriptions.push(api.registerEnvironmentManager(envManager))
 }
 
