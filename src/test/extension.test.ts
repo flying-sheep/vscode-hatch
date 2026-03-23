@@ -1,4 +1,5 @@
 import * as assert from 'node:assert'
+import test, { suite } from 'node:test'
 import * as vscode from 'vscode'
 
 //import * as extension from '../extension'
