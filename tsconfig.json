@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"module": "Node16",
 		"target": "ES2022",
-		"outDir": "out",
+		"outDir": "dist/flying-sheep.hatch",
 		"lib": ["ES2022"],
 		"resolveJsonModule": true,
 		"sourceMap": true,
