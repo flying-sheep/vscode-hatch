@@ -68,7 +68,7 @@ export class HatchEnvManager implements EnvironmentManager {
 	readonly onDidChangeEnvironments = this.#onDidChangeEnvironments.event
 
 	constructor(
-		readonly api: PythonEnvironmentApi,
+		api: PythonEnvironmentApi,
 		public readonly log: LogOutputChannel,
 	) {
 		this.#api = api
@@ -384,20 +384,25 @@ export class HatchEnvManager implements EnvironmentManager {
 		const executable = isWindows()
 			? paths.join(path, 'Scripts', 'python.exe')
 			: paths.join(path, 'bin', 'python')
-		const pyEnv = this.#api.createPythonEnvironmentItem(
-			{
-				name,
-				description: conf.description,
-				displayName: name,
-				displayPath: path,
-				tooltip: path,
-				environmentPath: Uri.file(path),
-				sysPrefix: path,
-				version: '1', // TODO
-				execInfo: { run: { executable } },
-			},
-			this,
-		)
-		return { ...pyEnv, hatch: { name, conf, path } }
+		const envInfo = {
+			name,
+			description: conf.description,
+			displayName: name,
+			displayPath: path,
+			tooltip: path,
+			environmentPath: Uri.file(path),
+			sysPrefix: path,
+			version: '1', // TODO
+			execInfo: { run: { executable } },
+		}
+		// make sure `getCallingExtension` leads to the correct managerId
+		const {
+			envId: { managerId },
+		} = this.#api.createPythonEnvironmentItem(envInfo, this)
+		return {
+			...envInfo,
+			envId: { id: path, managerId },
+			hatch: { name, conf, path },
+		}
 	}
 }
