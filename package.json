@@ -15,6 +15,7 @@
 		"url": "https://github.com/flying-sheep/vscode-hatch.git"
 	},
 	"publisher": "flying-sheep",
+	"icon": "./assets/logo.png",
 	"extensionDependencies": [
 		"ms-python.vscode-python-envs"
 	],
@@ -23,7 +24,18 @@
 		"workspaceContains:**/hatch.toml",
 		"workspaceContains:**/pyproject.toml"
 	],
-	"main": "./out/extension.js",
+	"contributes": {
+		"icons": {
+			"hatch-logo": {
+				"description": "Hatch Logo",
+				"default": {
+					"fontPath": "./assets/logo-symbolic.woff2",
+					"fontCharacter": "\\F000"
+				}
+			}
+		}
+	},
+	"main": "./dist/flying-sheep.hatch/extension.js",
 	"scripts": {
 		"postinstall": "$npm_execpath run husky && $npm_execpath run sync",
 		"sync": "curl -sf -o src/vscode-python-environments/index.ts -L \"https://github.com/microsoft/vscode-python-environments/raw/refs/heads/main/src/api.ts\"",
@@ -31,7 +43,7 @@
 		"watch": "tsc -watch -p ./",
 		"lint": "$npm_execpath run lint:check && $npm_execpath run lint:deps",
 		"lint:check": "biome check --write .",
-		"lint:deps": "depcheck --ignores='vscode,@types/mocha,@secretlint/*'",
+		"lint:deps": "depcheck --ignores='vscode,@vscode/test-electron,@types/mocha,@secretlint/*'",
 		"pretest": "$npm_execpath run compile && $npm_execpath run lint",
 		"test": "vscode-test",
 		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run compile",
@@ -40,24 +52,21 @@
 	"lint-staged": {
 		"*": "biome check --no-errors-on-unmatched --files-ignore-unknown=true --write"
 	},
-	"dependencies": {
-		"fs-extra": "11.3.4"
-	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.7",
+		"@biomejs/biome": "^2.4.8",
 		"@secretlint/secretlint-formatter-sarif": "^11.3.1",
 		"@secretlint/secretlint-rule-no-dotenv": "^11.3.1",
 		"@secretlint/secretlint-rule-preset-recommend": "^11.3.1",
-		"@types/fs-extra": "^11.0.4",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "25.x",
 		"@types/vscode": "1.99.1",
 		"@vscode/test-cli": "^0.0.12",
+		"@vscode/test-electron": "^2.5.2",
 		"@vscode/vsce": "^3.7.1",
 		"depcheck": "^1.4.7",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
 		"typescript": "^5.9.3"
 	},
-	"packageManager": "yarn@4.9.1"
+	"packageManager": "yarn@4.13.0"
 }

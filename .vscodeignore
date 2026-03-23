@@ -2,6 +2,7 @@
 .vscode-test/**
 .husky/**
 .yarn/**
+assets/*.fig
 src/**
 .gitignore
 .yarnrc

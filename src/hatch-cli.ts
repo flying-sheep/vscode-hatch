@@ -32,24 +32,20 @@ export interface HatchEnvConf {
 	description?: string
 }
 
-export async function getEnvs(scope: Uri): Promise<HatchEnvInfo[]> {
-	const json = await run('hatch', ['env', 'show', '--json'], {
-		cwd: scope.fsPath,
-	})
+export async function getEnvs(cwd: string): Promise<HatchEnvInfo[]> {
+	const json = await run('hatch', ['env', 'show', '--json'], { cwd })
 	const envs = JSON.parse(json) as { [name: string]: HatchEnvConf }
 	return await Promise.all(
 		Object.entries(envs).map(async ([name, conf]) => ({
 			name,
 			conf,
-			path: await findEnv(name, scope),
+			path: await findEnv(name, cwd),
 		})),
 	)
 }
 
-export async function findEnv(name: string, scope: Uri): Promise<string> {
-	const results = await run('hatch', ['env', 'find', name], {
-		cwd: scope.fsPath,
-	})
+export async function findEnv(name: string, cwd: string): Promise<string> {
+	const results = await run('hatch', ['env', 'find', name], { cwd })
 	const [p] = results
 		.split('\n')
 		.map((line) => line.trim())
@@ -59,13 +55,13 @@ export async function findEnv(name: string, scope: Uri): Promise<string> {
 
 export async function createEnv(
 	name: string,
-	scope: Uri,
+	fspath: string,
 	{ existOk = false }: { existOk?: boolean } = {},
 ): Promise<void> {
 	const args = existOk
 		? ['-e', name, 'run', 'python', '-V']
 		: ['env', 'create', name]
-	await run('hatch', args, { cwd: scope.fsPath })
+	await run('hatch', args, { cwd: fspath })
 }
 
 export async function removeEnv(name: string, scope: Uri): Promise<void> {
