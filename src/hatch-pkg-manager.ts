@@ -99,10 +99,12 @@ export class HatchPackageManager implements PackageManager {
 	): Promise<Package[] | undefined> {
 		if (!isHatchEnv(environment)) return undefined
 		const packages = this.#packages.get(environment.hatch.path)
-		if (packages === undefined) {
-			await this.refresh(environment)
-			return this.#packages.get(environment.hatch.path)
-		}
-		return packages
+		if (packages !== undefined) return packages
+		await this.refresh(environment)
+		return this.#packages.get(environment.hatch.path)
+	}
+
+	async clearCache(): Promise<void> {
+		this.#packages.clear()
 	}
 }
