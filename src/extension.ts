@@ -1,8 +1,8 @@
 import { type ExtensionContext, window } from 'vscode'
-import { registerLogger } from './common/logging'
-import { setWorkspacePersistentState } from './common/persistent-state'
-import { HatchEnvManager } from './hatch-env-manager'
-import { getEnvExtApi } from './python-envs-api'
+import { registerLogger } from './common/logging.js'
+import { setWorkspacePersistentState } from './common/persistent-state.js'
+import { HatchEnvManager } from './hatch-env-manager.js'
+import { getEnvExtApi } from './python-envs-api.js'
 
 export async function activate(context: ExtensionContext) {
 	const log = window.createOutputChannel('Hatch', { log: true })

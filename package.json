@@ -4,6 +4,7 @@
 	"description": "Manage Hatch environments",
 	"version": "0.0.1",
 	"license": "GPL-3.0",
+	"type": "module",
 	"engines": {
 		"vscode": "^1.99.0"
 	},
@@ -47,7 +48,7 @@
 		"pretest": "$npm_execpath run compile && $npm_execpath run lint",
 		"test": "vscode-test",
 		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run compile",
-		"vsce-package": "vsce package --yarn --follow-symlinks -o hatch.vsix"
+		"vsce-package": "vsce package --yarn --follow-symlinks -o flying-sheep.hatch.vsix"
 	},
 	"lint-staged": {
 		"*": "biome check --no-errors-on-unmatched --files-ignore-unknown=true --write"

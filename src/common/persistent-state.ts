@@ -1,7 +1,7 @@
 import type { ExtensionContext, Memento } from 'vscode'
 
-import { createDeferred, type Deferred } from './deferred'
-import { traceError } from './logging'
+import { createDeferred, type Deferred } from './deferred.js'
+import { traceError } from './logging.js'
 
 export interface PersistentState {
 	get<T>(key: string, defaultValue?: T): Promise<T | undefined>

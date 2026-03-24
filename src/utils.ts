@@ -1,5 +1,5 @@
-import { HATCH_MANAGER_ID } from './common/constants'
-import { getWorkspacePersistentState } from './common/persistent-state'
+import { HATCH_MANAGER_ID } from './common/constants.js'
+import { getWorkspacePersistentState } from './common/persistent-state.js'
 
 const HATCH_WORKSPACE_KEY = `${HATCH_MANAGER_ID}:WORKSPACE_SELECTED`
 const HATCH_GLOBAL_KEY = `${HATCH_MANAGER_ID}:GLOBAL_SELECTED`

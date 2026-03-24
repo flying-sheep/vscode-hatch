@@ -1,7 +1,7 @@
 import paths from 'node:path'
 import { Uri } from 'vscode'
-import type { PythonEnvironment } from '../vscode-python-environments'
-import { traceLog } from './logging'
+import type { PythonEnvironment } from '../vscode-python-environments/index.js'
+import { traceLog } from './logging.js'
 
 export class ScopeMap {
 	map: Map<string | undefined, PythonEnvironment>

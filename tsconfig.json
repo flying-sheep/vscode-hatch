@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"module": "Node16",
+		"module": "esnext",
 		"target": "ES2022",
 		"outDir": "dist/flying-sheep.hatch",
 		"lib": ["ES2022"],
