@@ -1,3 +1,4 @@
+import paths from 'node:path'
 import {
 	EventEmitter,
 	type LogOutputChannel,
@@ -7,10 +8,10 @@ import {
 	window,
 } from 'vscode'
 import * as hatch from './cli/hatch.js'
-import { envBin } from './cli/index.js'
 import { HATCH_ID, HATCH_MANAGER_ID, HATCH_NAME } from './common/constants.js'
 import { createDeferred, type Deferred } from './common/deferred.js'
 import { traceVerbose } from './common/logging.js'
+import { isWindows } from './common/platform.js'
 import {
 	clearExtensionCache,
 	getGlobalEnvId,
@@ -408,4 +409,10 @@ export class HatchEnvManager implements EnvironmentManager {
 			hatch: { name, path, conf, projectPath },
 		}
 	}
+}
+
+export function envBin(envPath: string, name: string): string {
+	return isWindows()
+		? paths.join(envPath, 'Scripts', `${name}.exe`)
+		: paths.join(envPath, 'bin', name)
 }

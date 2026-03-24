@@ -24,9 +24,3 @@ export async function run(
 		throw err
 	}
 }
-
-export function envBin(envPath: string, name: string): string {
-	return isWindows()
-		? paths.join(envPath, 'Scripts', `${name}.exe`)
-		: paths.join(envPath, 'bin', name)
-}

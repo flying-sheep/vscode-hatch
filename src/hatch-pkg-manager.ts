@@ -98,6 +98,11 @@ export class HatchPackageManager implements PackageManager {
 		environment: PythonEnvironment,
 	): Promise<Package[] | undefined> {
 		if (!isHatchEnv(environment)) return undefined
-		return this.#packages.get(environment.hatch.path)
+		const packages = this.#packages.get(environment.hatch.path)
+		if (packages === undefined) {
+			await this.refresh(environment)
+			return this.#packages.get(environment.hatch.path)
+		}
+		return packages
 	}
 }

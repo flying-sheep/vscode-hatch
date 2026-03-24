@@ -1,13 +1,15 @@
 import type { HatchEnvInfo } from './hatch.js'
-import { envBin, run } from './index.js'
+import { run } from './index.js'
 
 async function runPipOrUv(env: HatchEnvInfo, args: string[]): Promise<string> {
 	const args_ =
 		env.conf.installer === 'uv'
-			? ['uv', 'pip', ...args, `--python=${envBin(env.path, 'python')}`]
+			? ['uv', 'pip', ...args]
 			: ['pip', ...args, ...(args[0] === 'uninstall' ? ['--yes'] : [])]
 
-	return run('hatch', ['run', ...args_], { cwd: env.projectPath })
+	return run('hatch', ['-e', env.name, 'run', ...args_], {
+		cwd: env.projectPath,
+	})
 }
 
 export async function listPackages(
