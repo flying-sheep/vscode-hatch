@@ -1,19 +1,16 @@
-import paths from 'node:path'
 import {
 	EventEmitter,
-	type IconPath,
 	type LogOutputChannel,
-	type MarkdownString,
 	ProgressLocation,
 	ThemeIcon,
 	Uri,
 	window,
 } from 'vscode'
-import { HATCH_ID, HATCH_NAME } from './common/constants.js'
+import * as hatch from './cli/hatch.js'
+import { envBin } from './cli/index.js'
+import { HATCH_ID, HATCH_MANAGER_ID, HATCH_NAME } from './common/constants.js'
 import { createDeferred, type Deferred } from './common/deferred.js'
 import { traceVerbose } from './common/logging.js'
-import { isWindows } from './common/platform.js'
-import * as hatch from './hatch-cli.js'
 import {
 	clearExtensionCache,
 	getGlobalEnvId,
@@ -57,9 +54,11 @@ function syncHatchEnv(
 }
 
 export class HatchEnvManager implements EnvironmentManager {
-	#globalEnv: PythonEnvironment | undefined
-	#activeEnv = new Map<string, PythonEnvironment>() // Selected environment for each project
-	#projectToEnvs = new Map<string, HatchEnvironment[]>() // Maps a project path to its `hatch env show` output
+	readonly name = HATCH_ID
+	readonly displayName = HATCH_NAME
+	readonly preferredPackageManagerId = HATCH_MANAGER_ID
+	readonly tooltip = 'Hatch Environment Manager'
+	readonly iconPath = new ThemeIcon('hatch-logo')
 
 	readonly #onDidChangeEnvironment =
 		new EventEmitter<DidChangeEnvironmentEventArgs>()
@@ -74,21 +73,17 @@ export class HatchEnvManager implements EnvironmentManager {
 		public readonly log: LogOutputChannel,
 	) {
 		this.#api = api
-		this.name = HATCH_ID
-		this.displayName = HATCH_NAME
-		this.preferredPackageManagerId = 'ms-python.python:pip' // HATCH_MANAGER_ID
-		this.tooltip = 'Hatch Environment Manager'
-		this.iconPath = new ThemeIcon('hatch-logo')
+		this.#globalEnv = undefined
+		this.#activeEnv = new Map()
+		this.#projectToEnvs = new Map()
 	}
 
 	readonly #api: PythonEnvironmentApi
-
-	readonly name: string
-	readonly displayName: string
-	readonly preferredPackageManagerId: string
-	readonly description?: string
-	readonly tooltip: string | MarkdownString
-	readonly iconPath?: IconPath
+	#globalEnv: PythonEnvironment | undefined
+	/** Selected environment for each project */
+	#activeEnv: Map<string, PythonEnvironment>
+	/** Maps a project path to its `hatch env show` output */
+	#projectToEnvs: Map<string, HatchEnvironment[]>
 
 	dispose() {
 		this.#onDidChangeEnvironment.dispose()
@@ -383,10 +378,6 @@ export class HatchEnvManager implements EnvironmentManager {
 		conf,
 		path,
 	}: hatch.HatchEnvInfo): HatchEnvironment {
-		const executable = isWindows()
-			? paths.join(path, 'Scripts', 'python.exe')
-			: paths.join(path, 'bin', 'python')
-
 		const shellActivation: Map<string, PythonCommandRunConfiguration[]> =
 			new Map()
 		const shellDeactivation: Map<string, PythonCommandRunConfiguration[]> =
@@ -407,7 +398,7 @@ export class HatchEnvManager implements EnvironmentManager {
 			sysPrefix: path,
 			version: '1', // TODO
 			execInfo: {
-				run: { executable },
+				run: { executable: envBin(path, 'python') },
 				shellActivation,
 				shellDeactivation,
 			},

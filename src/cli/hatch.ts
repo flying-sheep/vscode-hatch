@@ -1,13 +1,4 @@
-import {
-	type ExecFileException,
-	execFile as execFileCb,
-	type ProcessEnvOptions,
-} from 'node:child_process'
-import { promisify } from 'node:util'
-import type { Uri } from 'vscode'
-import { traceError } from './common/logging.js'
-
-const execFile = promisify(execFileCb)
+import { run } from './index.js'
 
 export interface HatchEnvInfo {
 	name: string
@@ -55,30 +46,16 @@ export async function findEnv(name: string, cwd: string): Promise<string> {
 
 export async function createEnv(
 	name: string,
-	fspath: string,
+	cwd: string,
 	{ existOk = false }: { existOk?: boolean } = {},
 ): Promise<void> {
 	const args = existOk
 		? ['-e', name, 'run', 'python', '-V']
 		: ['env', 'create', name]
-	await run('hatch', args, { cwd: fspath })
+	await run('hatch', args, { cwd })
 }
 
-export async function removeEnv(name: string, scope: Uri): Promise<void> {
-	await run('hatch', ['env', 'remove', name], { cwd: scope.fsPath })
+export async function removeEnv(name: string, cwd: string): Promise<void> {
+	await run('hatch', ['env', 'remove', name], { cwd })
 }
 
-async function run(
-	cmd: string,
-	args: string[],
-	opts: ProcessEnvOptions,
-): Promise<string> {
-	try {
-		const { stdout } = await execFile(cmd, args, opts)
-		return stdout
-	} catch (e) {
-		const err = e as ExecFileException
-		traceError(err, err.stderr)
-		throw err
-	}
-}
