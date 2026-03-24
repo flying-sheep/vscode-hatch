@@ -101,6 +101,19 @@ export class HatchEnvManager implements EnvironmentManager {
 		}
 	}
 
+	async remove(environment: PythonEnvironment): Promise<void> {
+		if (!isHatchEnv(environment)) {
+			window.showErrorMessage(
+				'Cannot remove environment: is not a hatch environment',
+			)
+			return
+		}
+		await hatch.removeEnv(
+			environment.hatch.name,
+			environment.hatch.projectPath,
+		)
+	}
+
 	async refresh(scope: RefreshEnvironmentsScope): Promise<void> {
 		traceVerbose(`Called refresh with scope: ${scope}`)
 
