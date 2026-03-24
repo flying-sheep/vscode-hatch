@@ -1,4 +1,10 @@
-import { EventEmitter, type LogOutputChannel, ThemeIcon } from 'vscode'
+import {
+	EventEmitter,
+	type LogOutputChannel,
+	ProgressLocation,
+	ThemeIcon,
+	window,
+} from 'vscode'
 import {
 	installPackages,
 	listPackages,
@@ -61,7 +67,14 @@ export class HatchPackageManager implements PackageManager {
 	async refresh(environment: PythonEnvironment): Promise<void> {
 		if (!isHatchEnv(environment)) return
 		const { path: envPath } = environment.hatch
-		const raw = await listPackages(environment.hatch)
+		const raw = await window.withProgress(
+			{
+				location: ProgressLocation.Window,
+				title: 'Syncing hatch environment',
+				cancellable: false,
+			},
+			() => listPackages(environment.hatch),
+		)
 		const packages = raw.map(({ name, version }) =>
 			this.#api.createPackageItem(
 				{ name, displayName: name, version },
