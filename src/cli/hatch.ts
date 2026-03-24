@@ -4,6 +4,7 @@ export interface HatchEnvInfo {
 	name: string
 	path: string
 	conf: HatchEnvConf
+	projectPath: string
 }
 
 export interface HatchEnvConf {
@@ -23,20 +24,28 @@ export interface HatchEnvConf {
 	description?: string
 }
 
-export async function getEnvs(cwd: string): Promise<HatchEnvInfo[]> {
-	const json = await run('hatch', ['env', 'show', '--json'], { cwd })
+export async function getEnvs(projectPath: string): Promise<HatchEnvInfo[]> {
+	const json = await run('hatch', ['env', 'show', '--json'], {
+		cwd: projectPath,
+	})
 	const envs = JSON.parse(json) as { [name: string]: HatchEnvConf }
 	return await Promise.all(
 		Object.entries(envs).map(async ([name, conf]) => ({
 			name,
 			conf,
-			path: await findEnv(name, cwd),
+			path: await findEnv(name, projectPath),
+			projectPath,
 		})),
 	)
 }
 
-export async function findEnv(name: string, cwd: string): Promise<string> {
-	const results = await run('hatch', ['env', 'find', name], { cwd })
+export async function findEnv(
+	name: string,
+	projectPath: string,
+): Promise<string> {
+	const results = await run('hatch', ['env', 'find', name], {
+		cwd: projectPath,
+	})
 	const [p] = results
 		.split('\n')
 		.map((line) => line.trim())
@@ -44,18 +53,29 @@ export async function findEnv(name: string, cwd: string): Promise<string> {
 	return p
 }
 
+interface CreateEnvOptions {
+	mode?: 'create' | 'sync' | 'ensure'
+}
+
 export async function createEnv(
 	name: string,
-	cwd: string,
-	{ existOk = false }: { existOk?: boolean } = {},
+	projectPath: string,
+	{ mode = 'create' }: CreateEnvOptions = {},
 ): Promise<void> {
-	const args = existOk
-		? ['-e', name, 'run', 'python', '-V']
-		: ['env', 'create', name]
-	await run('hatch', args, { cwd })
+	const args =
+		mode === 'sync'
+			? ['-e', name, 'run', 'python', '-V']
+			: ['env', 'create', name]
+	if (mode === 'ensure')
+		try {
+			await run('hatch', args, { cwd: projectPath })
+		} catch (_) {}
+	await run('hatch', args, { cwd: projectPath })
 }
 
-export async function removeEnv(name: string, cwd: string): Promise<void> {
-	await run('hatch', ['env', 'remove', name], { cwd })
+export async function removeEnv(
+	name: string,
+	projectPath: string,
+): Promise<void> {
+	await run('hatch', ['env', 'remove', name], { cwd: projectPath })
 }
-

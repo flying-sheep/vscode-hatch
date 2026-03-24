@@ -44,15 +44,6 @@ export function isHatchEnv(
 	return env !== undefined && 'hatch' in env
 }
 
-function syncHatchEnv(
-	environment: HatchEnvironment,
-	fspath: string,
-): Promise<void> {
-	return hatch.createEnv(environment.hatch.name, fspath, {
-		existOk: true,
-	})
-}
-
 export class HatchEnvManager implements EnvironmentManager {
 	readonly name = HATCH_ID
 	readonly displayName = HATCH_NAME
@@ -191,7 +182,10 @@ export class HatchEnvManager implements EnvironmentManager {
 						title: 'Syncing hatch environment',
 						cancellable: false,
 					},
-					() => syncHatchEnv(environment, projectPath),
+					() =>
+						hatch.createEnv(environment.hatch.name, projectPath, {
+							mode: 'sync',
+						}),
 				)
 			}
 			const oldEnv = this.#activeEnv.get(projectPath)
@@ -368,15 +362,16 @@ export class HatchEnvManager implements EnvironmentManager {
 		}
 	}
 
-	async #getHatchEnvs(path: string): Promise<HatchEnvironment[]> {
-		const envs = await hatch.getEnvs(path)
+	async #getHatchEnvs(projectPath: string): Promise<HatchEnvironment[]> {
+		const envs = await hatch.getEnvs(projectPath)
 		return envs.map((e) => this.#hatch2pythonEnv(e))
 	}
 
 	#hatch2pythonEnv({
 		name,
-		conf,
 		path,
+		conf,
+		projectPath,
 	}: hatch.HatchEnvInfo): HatchEnvironment {
 		const shellActivation: Map<string, PythonCommandRunConfiguration[]> =
 			new Map()
@@ -410,7 +405,7 @@ export class HatchEnvManager implements EnvironmentManager {
 		return {
 			...envInfo,
 			envId: { id: path, managerId },
-			hatch: { name, conf, path },
+			hatch: { name, path, conf, projectPath },
 		}
 	}
 }

@@ -1,45 +1,34 @@
+import type { HatchEnvInfo } from './hatch.js'
 import { envBin, run } from './index.js'
 
-async function runPipOrUv(
-	envPath: string,
-	installer: 'uv' | 'pip',
-	args: string[],
-): Promise<string> {
-	if (installer === 'uv') {
-		return run('uv', [
-			'pip',
-			...args,
-			`--python=${envBin(envPath, 'python')}`,
-		])
-	}
-	return run(envBin(envPath, 'pip'), [
-		...args,
-		...(args[0] === 'uninstall' ? ['--yes'] : []),
-	])
+async function runPipOrUv(env: HatchEnvInfo, args: string[]): Promise<string> {
+	const args_ =
+		env.conf.installer === 'uv'
+			? ['uv', 'pip', ...args, `--python=${envBin(env.path, 'python')}`]
+			: ['pip', ...args, ...(args[0] === 'uninstall' ? ['--yes'] : [])]
+
+	return run('hatch', ['run', ...args_], { cwd: env.projectPath })
 }
 
 export async function listPackages(
-	envPath: string,
-	installer: 'uv' | 'pip',
+	env: HatchEnvInfo,
 ): Promise<{ name: string; version: string }[]> {
-	const json = await runPipOrUv(envPath, installer, ['list', '--format=json'])
+	const json = await runPipOrUv(env, ['list', '--format=json'])
 	return JSON.parse(json) as { name: string; version: string }[]
 }
 
 export async function installPackages(
-	envPath: string,
+	env: HatchEnvInfo,
 	packages: string[],
-	installer: 'uv' | 'pip',
 	{ upgrade = false }: { upgrade?: boolean } = {},
 ): Promise<void> {
 	const args = [...(upgrade ? ['--upgrade'] : []), ...packages]
-	await runPipOrUv(envPath, installer, ['install', ...args])
+	await runPipOrUv(env, ['install', ...args])
 }
 
 export async function uninstallPackages(
-	envPath: string,
+	env: HatchEnvInfo,
 	packages: string[],
-	installer: 'uv' | 'pip',
 ): Promise<void> {
-	await runPipOrUv(envPath, installer, ['uninstall', ...packages])
+	await runPipOrUv(env, ['uninstall', ...packages])
 }

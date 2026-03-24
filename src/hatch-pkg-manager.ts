@@ -35,11 +35,11 @@ export class HatchPackageManager implements PackageManager {
 	}
 
 	readonly #api: PythonEnvironmentApi
+	/** Map from environment path to packages */
 	readonly #packages: Map<string, Package[]>
 
 	dispose() {
 		this.#onDidChangePackages.dispose()
-		this.#packages.clear()
 	}
 
 	async manage(
@@ -47,31 +47,21 @@ export class HatchPackageManager implements PackageManager {
 		{ upgrade, install = [], uninstall = [] }: PackageManagementOptions,
 	): Promise<void> {
 		if (!isHatchEnv(environment)) return
-		const {
-			path: envPath,
-			conf: { installer },
-		} = environment.hatch
-
 		if (install.length > 0) {
-			await installPackages(envPath, install, installer, {
+			await installPackages(environment.hatch, install, {
 				upgrade,
 			})
 		}
 		if (uninstall.length > 0) {
-			await uninstallPackages(envPath, uninstall, installer)
+			await uninstallPackages(environment.hatch, uninstall)
 		}
-
 		await this.refresh(environment)
 	}
 
 	async refresh(environment: PythonEnvironment): Promise<void> {
 		if (!isHatchEnv(environment)) return
-		const {
-			path: envPath,
-			conf: { installer },
-		} = environment.hatch
-
-		const raw = await listPackages(envPath, installer)
+		const { path: envPath } = environment.hatch
+		const raw = await listPackages(environment.hatch)
 		const packages = raw.map(({ name, version }) =>
 			this.#api.createPackageItem(
 				{ name, displayName: name, version },
