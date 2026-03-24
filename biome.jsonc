@@ -18,6 +18,14 @@
 					"options": { "filenameCases": ["kebab-case"] },
 				},
 			},
+			"correctness": {
+				"useImportExtensions": {
+					"level": "error",
+					"options": {
+						"forceJsExtensions": true,
+					},
+				},
+			},
 		},
 		"includes": ["**", "!**/src/vscode-python-environments/*.ts"],
 	},

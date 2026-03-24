@@ -5,7 +5,7 @@ import {
 } from 'node:child_process'
 import { promisify } from 'node:util'
 import type { Uri } from 'vscode'
-import { traceError } from './common/logging'
+import { traceError } from './common/logging.js'
 
 const execFile = promisify(execFileCb)
 

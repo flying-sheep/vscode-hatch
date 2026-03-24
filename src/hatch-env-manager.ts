@@ -9,18 +9,18 @@ import {
 	Uri,
 	window,
 } from 'vscode'
-import { HATCH_ID, HATCH_NAME } from './common/constants'
-import { createDeferred, type Deferred } from './common/deferred'
-import { traceVerbose } from './common/logging'
-import { isWindows } from './common/platform'
-import * as hatch from './hatch-cli'
+import { HATCH_ID, HATCH_NAME } from './common/constants.js'
+import { createDeferred, type Deferred } from './common/deferred.js'
+import { traceVerbose } from './common/logging.js'
+import { isWindows } from './common/platform.js'
+import * as hatch from './hatch-cli.js'
 import {
 	clearExtensionCache,
 	getGlobalEnvId,
 	getProjectEnvId,
 	setGlobalEnvId,
 	setProjectEnvId,
-} from './utils'
+} from './utils.js'
 import {
 	type DidChangeEnvironmentEventArgs,
 	type DidChangeEnvironmentsEventArgs,
@@ -31,10 +31,11 @@ import {
 	type PythonCommandRunConfiguration,
 	type PythonEnvironment,
 	type PythonEnvironmentApi,
+	type PythonEnvironmentInfo,
 	type RefreshEnvironmentsScope,
 	type ResolveEnvironmentContext,
 	type SetEnvironmentScope,
-} from './vscode-python-environments'
+} from './vscode-python-environments/index.js'
 
 export interface HatchEnvironment extends PythonEnvironment {
 	hatch: hatch.HatchEnvInfo
@@ -396,7 +397,7 @@ export class HatchEnvManager implements EnvironmentManager {
 		])
 		shellDeactivation.set('unknown', [{ executable: 'exit' }])
 
-		const envInfo = {
+		const envInfo: PythonEnvironmentInfo = {
 			name,
 			description: conf.description,
 			displayName: name,
