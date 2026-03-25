@@ -25,5 +25,5 @@ TODO
 - [Terminal activation is slow](https://github.com/microsoft/vscode-python-environments/issues/1391)
 
 ## Release Notes
-### 0.0.1
-Unreleased
+### 0.1.0
+Beta test
