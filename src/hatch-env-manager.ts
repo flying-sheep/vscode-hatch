@@ -91,9 +91,7 @@ export class HatchEnvManager implements EnvironmentManager {
 		if (this.#initialized) {
 			return this.#initialized.promise
 		}
-
 		this.#initialized = createDeferred()
-
 		try {
 			await this.#refreshAll()
 		} finally {
@@ -102,21 +100,19 @@ export class HatchEnvManager implements EnvironmentManager {
 	}
 
 	async remove(environment: PythonEnvironment): Promise<void> {
-		if (!isHatchEnv(environment)) {
-			window.showErrorMessage(
-				'Cannot remove environment: is not a hatch environment',
-			)
-			return
-		}
+		if (!isHatchEnv(environment)) return
 		await hatch.removeEnv(
 			environment.hatch.name,
 			environment.hatch.projectPath,
+		)
+		// Show info message as there is otherwise no visual indicator
+		await window.showInformationMessage(
+			`Removed environment “${environment.name}”`,
 		)
 	}
 
 	async refresh(scope: RefreshEnvironmentsScope): Promise<void> {
 		traceVerbose(`Called refresh with scope: ${scope}`)
-
 		if (scope instanceof Uri) {
 			await this.#refreshOne(scope)
 		} else {
@@ -128,34 +124,19 @@ export class HatchEnvManager implements EnvironmentManager {
 		scope: GetEnvironmentsScope,
 	): Promise<PythonEnvironment[]> {
 		traceVerbose(`Called getEnvironments with scope: ${scope}`)
-
 		await this.initialize()
-
-		if (scope === 'all') {
-			return [...this.#buildEnvLookup().values()]
-		}
-
-		if (scope instanceof Uri) {
-			const project = this.#api.getPythonProject(scope)
-			return project
-				? this.#projectToEnvs.get(project.uri.fsPath) || []
-				: []
-		}
-
-		return []
+		if (scope === 'all') return [...this.#buildEnvLookup().values()]
+		if (scope === 'global') return []
+		const project = this.#api.getPythonProject(scope)
+		return (project && this.#projectToEnvs.get(project.uri.fsPath)) ?? []
 	}
 
 	async get(
 		scope: GetEnvironmentScope,
 	): Promise<PythonEnvironment | undefined> {
 		traceVerbose(`Called get with scope: ${scope}`)
-
 		await this.initialize()
-
-		if (!scope) {
-			return this.#globalEnv
-		}
-
+		if (!scope) return this.#globalEnv
 		const project = this.#api.getPythonProject(scope)
 		return project
 			? this.#activeEnv.get(project.uri.fsPath)
@@ -184,22 +165,19 @@ export class HatchEnvManager implements EnvironmentManager {
 		const uris = scope instanceof Uri ? [scope] : scope
 		for (const uri of uris) {
 			const project = this.#api.getPythonProject(uri)
-			if (!project) {
-				continue
-			}
+			if (!project) continue
 
 			const projectPath = project.uri.fsPath
 			if (isHatchEnv(environment)) {
-				await window.withProgress(
-					{
-						location: ProgressLocation.Notification,
-						title: 'Syncing hatch environment',
-						cancellable: false,
-					},
-					() =>
-						hatch.createEnv(environment.hatch.name, projectPath, {
-							mode: 'sync',
-						}),
+				const opts = {
+					location: ProgressLocation.Notification,
+					title: 'Syncing hatch environment',
+					cancellable: false,
+				}
+				await window.withProgress(opts, () =>
+					hatch.createEnv(environment.hatch.name, projectPath, {
+						mode: 'sync',
+					}),
 				)
 			}
 			const oldEnv = this.#activeEnv.get(projectPath)
@@ -220,7 +198,7 @@ export class HatchEnvManager implements EnvironmentManager {
 	): Promise<PythonEnvironment | undefined> {
 		traceVerbose(`Called resolve with context: ${context}`)
 		const project = this.#api.getPythonProject(context)
-		return project ? this.#activeEnv.get(project.uri.fsPath) : undefined
+		return project && this.#activeEnv.get(project.uri.fsPath)
 	}
 
 	async clearCache() {
@@ -242,95 +220,78 @@ export class HatchEnvManager implements EnvironmentManager {
 	): DidChangeEnvironmentsEventArgs {
 		const oldIds = new Set(oldEnvs.map((e) => e.envId.id))
 		const newIds = new Set(newEnvs.map((e) => e.envId.id))
-
 		return [
-			...oldEnvs
-				.filter((e) => !newIds.has(e.envId.id))
-				.map((e) => ({
-					environment: e,
-					kind: EnvironmentChangeKind.remove,
-				})),
-			...newEnvs
-				.filter((e) => !oldIds.has(e.envId.id))
-				.map((e) => ({
-					environment: e,
-					kind: EnvironmentChangeKind.add,
-				})),
-		]
+			{ envs: oldEnvs, ids: newIds, kind: EnvironmentChangeKind.remove },
+			{ envs: newEnvs, ids: oldIds, kind: EnvironmentChangeKind.add },
+		].flatMap(({ envs, ids, kind }) =>
+			envs
+				.filter((e) => !ids.has(e.envId.id))
+				.map((e) => ({ environment: e, kind })),
+		)
 	}
 
 	async #refreshAll(): Promise<void> {
-		await window.withProgress(
-			{
-				location: ProgressLocation.Window,
-				title: 'Discovering Hatch environments',
-			},
-			async () => {
-				const oldProjectToEnvs = new Map(this.#projectToEnvs)
-				this.#projectToEnvs.clear()
+		const opts = {
+			location: ProgressLocation.Window,
+			title: 'Discovering Hatch environments',
+		}
+		await window.withProgress(opts, async () => {
+			const oldProjectToEnvs = new Map(this.#projectToEnvs)
+			this.#projectToEnvs.clear()
 
-				// Collect project paths from registered Python projects and search paths
-				const projects = this.#api.getPythonProjects()
-				const projectMap = new Map(
-					projects.map((p) => [p.uri.fsPath, p]),
-				)
+			// Collect project paths from registered Python projects and search paths
+			const projects = this.#api.getPythonProjects()
+			const projectMap = new Map(projects.map((p) => [p.uri.fsPath, p]))
+			// Hatch has no global paths, so not adding any here
+			const projectPaths = new Set(projectMap.keys())
 
-				const searchPathRoots = [] as const //await resolveHatchProjectPaths();
-				const projectPaths = new Set([
-					...projectMap.keys(),
-					...searchPathRoots,
-				])
+			const changes: DidChangeEnvironmentsEventArgs = []
 
-				const changes: DidChangeEnvironmentsEventArgs = []
+			await Promise.all(
+				[...projectPaths].map(async (projectPath) => {
+					const oldEnvs = oldProjectToEnvs.get(projectPath) || []
+					const newEnvs = await this.#getHatchEnvs(projectPath)
 
-				await Promise.all(
-					[...projectPaths].map(async (projectPath) => {
-						const oldEnvs = oldProjectToEnvs.get(projectPath) || []
-						const newEnvs = await this.#getHatchEnvs(projectPath)
+					changes.push(...this.#diffEnvironments(oldEnvs, newEnvs))
+					this.#projectToEnvs.set(projectPath, newEnvs)
+				}),
+			)
 
-						changes.push(
-							...this.#diffEnvironments(oldEnvs, newEnvs),
-						)
-						this.#projectToEnvs.set(projectPath, newEnvs)
-					}),
-				)
+			this.#onDidChangeEnvironments.fire(changes)
 
-				this.#onDidChangeEnvironments.fire(changes)
+			const envLookup = this.#buildEnvLookup()
 
-				const envLookup = this.#buildEnvLookup()
+			// Update global environment
+			const globalEnvId = await getGlobalEnvId()
+			const globalEnv = globalEnvId
+				? envLookup.get(globalEnvId)
+				: undefined
+			this.#triggerDidChangeEnvironment(
+				undefined,
+				this.#globalEnv,
+				globalEnv,
+			)
+			this.#globalEnv = globalEnv
 
-				// Update global environment
-				const globalEnvId = await getGlobalEnvId()
-				const globalEnv = globalEnvId
-					? envLookup.get(globalEnvId)
-					: undefined
-				this.#triggerDidChangeEnvironment(
-					undefined,
-					this.#globalEnv,
-					globalEnv,
-				)
-				this.#globalEnv = globalEnv
+			// Update active environments for each project
+			const oldActiveEnv = new Map(this.#activeEnv)
+			this.#activeEnv.clear()
 
-				// Update active environments for each project
-				const oldActiveEnv = new Map(this.#activeEnv)
-				this.#activeEnv.clear()
+			for (const projectPath of projectPaths) {
+				const envId = await getProjectEnvId(projectPath)
+				const env = envId ? envLookup.get(envId) : undefined
 
-				for (const projectPath of projectPaths) {
-					const envId = await getProjectEnvId(projectPath)
-					const env = envId ? envLookup.get(envId) : undefined
-
-					if (env) {
-						this.#activeEnv.set(projectPath, env)
-					}
-
-					this.#triggerDidChangeEnvironment(
-						projectMap.get(projectPath)?.uri,
-						oldActiveEnv.get(projectPath),
-						env,
-					)
+				if (env) {
+					this.#activeEnv.set(projectPath, env)
 				}
-			},
-		)
+
+				this.#triggerDidChangeEnvironment(
+					projectMap.get(projectPath)?.uri,
+					oldActiveEnv.get(projectPath),
+					env,
+				)
+			}
+		})
 	}
 
 	async #refreshOne(scope: Uri): Promise<void> {

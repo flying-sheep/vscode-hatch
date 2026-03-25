@@ -67,37 +67,26 @@ export class HatchPackageManager implements PackageManager {
 	async refresh(environment: PythonEnvironment): Promise<void> {
 		if (!isHatchEnv(environment)) return
 		const { path: envPath } = environment.hatch
-		const raw = await window.withProgress(
-			{
-				location: ProgressLocation.Window,
-				title: 'Syncing hatch environment',
-				cancellable: false,
-			},
-			() => listPackages(environment.hatch),
-		)
-		const packages = raw.map(({ name, version }) =>
-			this.#api.createPackageItem(
-				{ name, displayName: name, version },
-				environment,
-				this,
-			),
-		)
+		const opts = {
+			location: ProgressLocation.Window,
+			title: 'Syncing hatch environment',
+			cancellable: false,
+		}
+		const packages = await window.withProgress(opts, async () => {
+			const packages = await listPackages(environment.hatch)
+			return packages.map(({ name, version }) =>
+				this.#api.createPackageItem(
+					{ name, displayName: name, version },
+					environment,
+					this,
+				),
+			)
+		})
 
 		const oldPackages = this.#packages.get(envPath) ?? []
 		this.#packages.set(envPath, packages)
 
-		const oldIds = new Set(oldPackages.map((p) => p.pkgId.id))
-		const newIds = new Set(packages.map((p) => p.pkgId.id))
-
-		const changes: DidChangePackagesEventArgs['changes'] = [
-			...oldPackages
-				.filter((p) => !newIds.has(p.pkgId.id))
-				.map((pkg) => ({ kind: PackageChangeKind.remove, pkg })),
-			...packages
-				.filter((p) => !oldIds.has(p.pkgId.id))
-				.map((pkg) => ({ kind: PackageChangeKind.add, pkg })),
-		]
-
+		const changes = this.#diffPkgs(oldPackages, packages)
 		if (changes.length > 0) {
 			this.#onDidChangePackages.fire({
 				environment,
@@ -119,5 +108,22 @@ export class HatchPackageManager implements PackageManager {
 
 	async clearCache(): Promise<void> {
 		this.#packages.clear()
+	}
+
+	#diffPkgs(
+		oldPackages: Package[],
+		packages: Package[],
+	): DidChangePackagesEventArgs['changes'] {
+		const oldIds = new Set(oldPackages.map((p) => p.pkgId.id))
+		const newIds = new Set(packages.map((p) => p.pkgId.id))
+
+		return [
+			{ pkgs: oldPackages, ids: newIds, kind: PackageChangeKind.remove },
+			{ pkgs: packages, ids: oldIds, kind: PackageChangeKind.add },
+		].flatMap(({ pkgs, ids, kind }) =>
+			pkgs
+				.filter((p) => !ids.has(p.pkgId.id))
+				.map((pkg) => ({ pkg, kind })),
+		)
 	}
 }
