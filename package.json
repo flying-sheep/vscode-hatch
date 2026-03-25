@@ -13,7 +13,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/flying-sheep/vscode-hatch.git"
+		"url": "https://github.com/flying-sheep/hatch-code.git"
 	},
 	"publisher": "flying-sheep",
 	"icon": "./assets/logo.png",
@@ -32,7 +32,7 @@
 				"hatch.executable": {
 					"type": "string",
 					"default": "",
-					"description": "Path to the Hatch executable. Leave empty to use auto-discovery.",
+					"markdownDescription": "Path to the Hatch executable. Leave empty to use auto-discovery. Supports tilde expansion, e.g. `~/.local/bin/hatch`",
 					"scope": "machine-overridable"
 				}
 			}
