@@ -13,7 +13,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/flying-sheep/vscode-hatch.git"
+		"url": "https://github.com/flying-sheep/hatch-code.git"
 	},
 	"publisher": "flying-sheep",
 	"icon": "./assets/logo.png",
@@ -26,6 +26,17 @@
 		"workspaceContains:**/pyproject.toml"
 	],
 	"contributes": {
+		"configuration": {
+			"title": "Hatch",
+			"properties": {
+				"hatch.executable": {
+					"type": "string",
+					"default": "",
+					"markdownDescription": "Path to the Hatch executable. Leave empty to use auto-discovery. Supports tilde expansion, e.g. `~/.local/bin/hatch`",
+					"scope": "machine-overridable"
+				}
+			}
+		},
 		"icons": {
 			"hatch-logo": {
 				"description": "Hatch Logo",
@@ -61,6 +72,7 @@
 		"@types/mocha": "^10.0.10",
 		"@types/node": "25.x",
 		"@types/vscode": "1.99.1",
+		"@types/which": "^3.0.4",
 		"@vscode/test-cli": "^0.0.12",
 		"@vscode/test-electron": "^2.5.2",
 		"@vscode/vsce": "^3.7.1",
@@ -69,5 +81,9 @@
 		"lint-staged": "^16.4.0",
 		"typescript": "^6.0.2"
 	},
-	"packageManager": "yarn@4.13.0"
+	"packageManager": "yarn@4.13.0",
+	"dependencies": {
+		"untildify": "^6.0.0",
+		"which": "^6.0.1"
+	}
 }
