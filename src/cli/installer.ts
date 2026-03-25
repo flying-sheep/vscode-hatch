@@ -1,5 +1,5 @@
 import type { HatchEnvInfo } from './hatch.js'
-import { run } from './index.js'
+import run from './run.js'
 
 async function runPipOrUv(
 	hatch: string,
@@ -24,11 +24,14 @@ export async function listPackages(
 	return JSON.parse(json) as { name: string; version: string }[]
 }
 
+export interface InstallOptions {
+	upgrade?: boolean
+}
 export async function installPackages(
 	hatch: string,
 	env: HatchEnvInfo,
 	packages: string[],
-	{ upgrade = false }: { upgrade?: boolean } = {},
+	{ upgrade = false }: InstallOptions = {},
 ): Promise<void> {
 	const args = [...(upgrade ? ['--upgrade'] : []), ...packages]
 	await runPipOrUv(hatch, env, ['install', ...args])

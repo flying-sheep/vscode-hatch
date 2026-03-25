@@ -1,4 +1,4 @@
-import { run } from './index.js'
+import run from './run.js'
 
 export interface HatchEnvInfo {
 	name: string
@@ -36,7 +36,7 @@ export async function getEnvs(
 		Object.entries(envs).map(async ([name, conf]) => ({
 			name,
 			conf,
-			path: await findEnv(hatch, name, projectPath),
+			path: await findEnv(hatch, { name, projectPath }),
 			projectPath,
 		})),
 	)
@@ -44,8 +44,7 @@ export async function getEnvs(
 
 export async function findEnv(
 	hatch: string,
-	name: string,
-	projectPath: string,
+	{ name, projectPath }: Pick<HatchEnvInfo, 'name' | 'projectPath'>,
 ): Promise<string> {
 	const results = await run(hatch, ['env', 'find', name], {
 		cwd: projectPath,
@@ -57,14 +56,12 @@ export async function findEnv(
 	return p
 }
 
-interface CreateEnvOptions {
+export interface CreateEnvOptions {
 	mode?: 'create' | 'sync' | 'ensure'
 }
-
 export async function createEnv(
 	hatch: string,
-	name: string,
-	projectPath: string,
+	{ name, projectPath }: HatchEnvInfo,
 	{ mode = 'create' }: CreateEnvOptions = {},
 ): Promise<void> {
 	const args =
@@ -80,8 +77,7 @@ export async function createEnv(
 
 export async function removeEnv(
 	hatch: string,
-	name: string,
-	projectPath: string,
+	{ name, projectPath }: HatchEnvInfo,
 ): Promise<void> {
 	await run(hatch, ['env', 'remove', name], { cwd: projectPath })
 }

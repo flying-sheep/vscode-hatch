@@ -7,12 +7,11 @@ import {
 	Uri,
 	window,
 } from 'vscode'
-import * as hatch from './cli/hatch.js'
+import type { HatchEnvInfo, HatchExecutableTracker } from './cli/index.js'
 import { HATCH_ID, HATCH_MANAGER_ID, HATCH_NAME } from './common/constants.js'
 import { createDeferred, type Deferred } from './common/deferred.js'
 import { traceVerbose } from './common/logging.js'
 import { isWindows } from './common/platform.js'
-import type HatchExecutableTracker from './hatch-exe-tracker.js'
 import {
 	clearExtensionCache,
 	getGlobalEnvId,
@@ -37,7 +36,7 @@ import {
 } from './vscode-python-environments/index.js'
 
 export interface HatchEnvironment extends PythonEnvironment {
-	hatch: hatch.HatchEnvInfo
+	hatch: HatchEnvInfo
 }
 
 export function isHatchEnv(
@@ -105,11 +104,7 @@ export class HatchEnvManager implements EnvironmentManager {
 
 	async remove(environment: PythonEnvironment): Promise<void> {
 		if (!isHatchEnv(environment)) return
-		await hatch.removeEnv(
-			this.#hatch.executable,
-			environment.hatch.name,
-			environment.hatch.projectPath,
-		)
+		await this.#hatch.removeEnv(environment.hatch)
 		// Show info message as there is otherwise no visual indicator
 		await window.showInformationMessage(
 			`Removed environment “${environment.name}”`,
@@ -172,7 +167,6 @@ export class HatchEnvManager implements EnvironmentManager {
 			const project = this.#api.getPythonProject(uri)
 			if (!project) continue
 
-			const projectPath = project.uri.fsPath
 			if (isHatchEnv(environment)) {
 				const opts = {
 					location: ProgressLocation.Notification,
@@ -180,16 +174,12 @@ export class HatchEnvManager implements EnvironmentManager {
 					cancellable: false,
 				}
 				await window.withProgress(opts, () =>
-					hatch.createEnv(
-						this.#hatch.executable,
-						environment.hatch.name,
-						projectPath,
-						{
-							mode: 'sync',
-						},
-					),
+					this.#hatch.createEnv(environment.hatch, {
+						mode: 'sync',
+					}),
 				)
 			}
+			const projectPath = project.uri.fsPath
 			const oldEnv = this.#activeEnv.get(projectPath)
 
 			if (environment) {
@@ -348,7 +338,7 @@ export class HatchEnvManager implements EnvironmentManager {
 	}
 
 	async #getHatchEnvs(projectPath: string): Promise<HatchEnvironment[]> {
-		const envs = await hatch.getEnvs(this.#hatch.executable, projectPath)
+		const envs = await this.#hatch.getEnvs(projectPath)
 		return envs.map((e) => this.#hatch2pythonEnv(e))
 	}
 
@@ -357,7 +347,7 @@ export class HatchEnvManager implements EnvironmentManager {
 		path,
 		conf,
 		projectPath,
-	}: hatch.HatchEnvInfo): HatchEnvironment {
+	}: HatchEnvInfo): HatchEnvironment {
 		const shellActivation: Map<string, PythonCommandRunConfiguration[]> =
 			new Map()
 		const shellDeactivation: Map<string, PythonCommandRunConfiguration[]> =

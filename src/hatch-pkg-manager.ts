@@ -5,15 +5,10 @@ import {
 	ThemeIcon,
 	window,
 } from 'vscode'
-import {
-	installPackages,
-	listPackages,
-	uninstallPackages,
-} from './cli/installer.js'
+import type HatchExecutableTracker from './cli/index.js'
 import { HATCH_ID, HATCH_NAME } from './common/constants.js'
 import { traceVerbose } from './common/logging.js'
 import { isHatchEnv } from './hatch-env-manager.js'
-import type HatchExecutableTracker from './hatch-exe-tracker.js'
 import {
 	type DidChangePackagesEventArgs,
 	type Package,
@@ -60,21 +55,12 @@ export class HatchPackageManager implements PackageManager {
 	): Promise<void> {
 		if (!isHatchEnv(environment)) return
 		if (install.length > 0) {
-			await installPackages(
-				this.#hatch.executable,
-				environment.hatch,
-				install,
-				{
-					upgrade,
-				},
-			)
+			await this.#hatch.installPackages(environment.hatch, install, {
+				upgrade,
+			})
 		}
 		if (uninstall.length > 0) {
-			await uninstallPackages(
-				this.#hatch.executable,
-				environment.hatch,
-				uninstall,
-			)
+			await this.#hatch.uninstallPackages(environment.hatch, uninstall)
 		}
 		await this.refresh(environment)
 	}
@@ -88,10 +74,7 @@ export class HatchPackageManager implements PackageManager {
 			cancellable: false,
 		}
 		const packages = await window.withProgress(opts, async () => {
-			const packages = await listPackages(
-				this.#hatch.executable,
-				environment.hatch,
-			)
+			const packages = await this.#hatch.listPackages(environment.hatch)
 			return packages.map(({ name, version }) =>
 				this.#api.createPackageItem(
 					{ name, displayName: name, version },
