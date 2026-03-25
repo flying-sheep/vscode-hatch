@@ -8,6 +8,7 @@ import {
 	window,
 } from 'vscode'
 import * as hatch from './cli/hatch.js'
+import { getHatch } from './cli/index.js'
 import { HATCH_ID, HATCH_MANAGER_ID, HATCH_NAME } from './common/constants.js'
 import { createDeferred, type Deferred } from './common/deferred.js'
 import { traceVerbose } from './common/logging.js'
@@ -339,22 +340,21 @@ export class HatchEnvManager implements EnvironmentManager {
 
 	async #getHatchEnvs(projectPath: string): Promise<HatchEnvironment[]> {
 		const envs = await hatch.getEnvs(projectPath)
-		return envs.map((e) => this.#hatch2pythonEnv(e))
+		const executable = await getHatch()
+		return envs.map((e) => this.#hatch2pythonEnv(executable, e))
 	}
 
-	#hatch2pythonEnv({
-		name,
-		path,
-		conf,
-		projectPath,
-	}: hatch.HatchEnvInfo): HatchEnvironment {
+	#hatch2pythonEnv(
+		executable: string,
+		{ name, path, conf, projectPath }: hatch.HatchEnvInfo,
+	): HatchEnvironment {
 		const shellActivation: Map<string, PythonCommandRunConfiguration[]> =
 			new Map()
 		const shellDeactivation: Map<string, PythonCommandRunConfiguration[]> =
 			new Map()
 
 		shellActivation.set('unknown', [
-			{ executable: 'hatch', args: [`--env=${name}`, 'shell'] },
+			{ executable, args: [`--env=${name}`, 'shell'] },
 		])
 		shellDeactivation.set('unknown', [{ executable: 'exit' }])
 

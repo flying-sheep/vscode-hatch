@@ -1,5 +1,5 @@
 import type { HatchEnvInfo } from './hatch.js'
-import { run } from './index.js'
+import { getHatch, run } from './index.js'
 
 async function runPipOrUv(env: HatchEnvInfo, args: string[]): Promise<string> {
 	const args_ =
@@ -7,7 +7,7 @@ async function runPipOrUv(env: HatchEnvInfo, args: string[]): Promise<string> {
 			? ['uv', 'pip', ...args]
 			: ['pip', ...args, ...(args[0] === 'uninstall' ? ['--yes'] : [])]
 
-	return run('hatch', ['-e', env.name, 'run', ...args_], {
+	return run(await getHatch(), ['-e', env.name, 'run', ...args_], {
 		cwd: env.projectPath,
 	})
 }
