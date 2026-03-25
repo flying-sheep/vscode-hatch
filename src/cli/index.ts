@@ -1,28 +1,67 @@
-import { execFile as execFileCb } from 'node:child_process'
-import { promisify } from 'node:util'
+import type { ExecFileException } from 'node:child_process'
 import untildify from 'untildify'
 import type { ConfigurationChangeEvent } from 'vscode'
-import { type Disposable, window, workspace } from 'vscode'
+import {
+	type Disposable,
+	type LogOutputChannel,
+	window,
+	workspace,
+} from 'vscode'
 import which from 'which'
+import { traceError } from '../common/logging.js'
 import type { HatchEnvInfo } from './hatch.js'
 import * as hatch from './hatch.js'
 import * as installer from './installer.js'
 
-export const execFile = promisify(execFileCb)
-
 export type { HatchEnvInfo }
 
+const EXE_CONFIG_KEY = 'hatch.executable'
+const EXE_CONFIG_SECTION = 'hatch' // dotted section name
+const EXE_CONFIG_SETTING = 'executable' // last element
+
+const VIEW_LOGS = 'View Logs'
+
+function isExecFileError(e: unknown): e is ExecFileException {
+	return typeof (e as ExecFileException).stderr === 'string'
+}
+
+/** Suggest to update the configuration if an error occurs */
+function suggestExeConfig<
+	This extends { readonly log: LogOutputChannel },
+	Args extends unknown[],
+	Return,
+>(target: (this: This, ...args: Args) => Promise<Return>) {
+	return async function (this: This, ...args: Args) {
+		try {
+			return await target.call(this, ...args)
+		} catch (e) {
+			const result = await window.showErrorMessage(
+				`Error executing hatch: ${e}. Maybe you need to update "${EXE_CONFIG_KEY}" in your settings.`,
+				VIEW_LOGS,
+			)
+			if (result === VIEW_LOGS) this.log.show()
+			traceError(e, ...(isExecFileError(e) ? [e.stderr] : []))
+			throw e
+		}
+	}
+}
+
 export class HatchExecutableTracker {
-	private constructor(executable: string) {
+	private constructor(
+		executable: string,
+		readonly log: LogOutputChannel,
+	) {
 		this.#executable = executable
 		this.#configChangeListener = workspace.onDidChangeConfiguration((e) =>
 			this.#handleConfigChange(e),
 		)
 	}
 
-	static async create(): Promise<HatchExecutableTracker> {
+	static async create(
+		log: LogOutputChannel,
+	): Promise<HatchExecutableTracker> {
 		const executable = await getHatch()
-		return new HatchExecutableTracker(executable)
+		return new HatchExecutableTracker(executable, log)
 	}
 
 	#executable: string
@@ -33,7 +72,7 @@ export class HatchExecutableTracker {
 	}
 
 	async #handleConfigChange(e: ConfigurationChangeEvent): Promise<void> {
-		if (e.affectsConfiguration('hatch.executable')) {
+		if (e.affectsConfiguration(EXE_CONFIG_KEY)) {
 			this.#executable = await getHatch()
 		}
 	}
@@ -42,47 +81,52 @@ export class HatchExecutableTracker {
 		this.#configChangeListener.dispose()
 	}
 
+	@suggestExeConfig
 	getEnvs(projectPath: string): Promise<HatchEnvInfo[]> {
 		return hatch.getEnvs(this.#executable, projectPath)
 	}
+	@suggestExeConfig
 	findEnv(env: HatchEnvInfo): Promise<string> {
 		return hatch.findEnv(this.#executable, env)
 	}
+	@suggestExeConfig
 	removeEnv(env: HatchEnvInfo): Promise<void> {
 		return hatch.removeEnv(this.#executable, env)
 	}
+	@suggestExeConfig
 	createEnv(env: HatchEnvInfo, opts?: hatch.CreateEnvOptions): Promise<void> {
 		return hatch.createEnv(this.#executable, env, opts)
 	}
 
+	@suggestExeConfig
 	listPackages(
 		env: HatchEnvInfo,
 	): Promise<{ name: string; version: string }[]> {
 		return installer.listPackages(this.#executable, env)
 	}
-	async installPackages(
+	@suggestExeConfig
+	installPackages(
 		env: HatchEnvInfo,
 		packages: string[],
 		opts: installer.InstallOptions = {},
 	): Promise<void> {
 		return installer.installPackages(this.#executable, env, packages, opts)
 	}
-	async uninstallPackages(
-		env: HatchEnvInfo,
-		packages: string[],
-	): Promise<void> {
+	@suggestExeConfig
+	uninstallPackages(env: HatchEnvInfo, packages: string[]): Promise<void> {
 		return installer.uninstallPackages(this.#executable, env, packages)
 	}
 }
 
 async function getHatch(): Promise<string> {
 	const value =
-		workspace.getConfiguration('hatch').get<string>('executable') ?? ''
+		workspace
+			.getConfiguration(EXE_CONFIG_SECTION)
+			.get<string>(EXE_CONFIG_SETTING) ?? ''
 	if (value.length > 0) return untildify(value)
 	const path = await which('hatch', { nothrow: true })
 	if (!path) {
-		const errorMsg =
-			'Hatch executable not found. Please install Hatch or set "hatch.executable" in your settings.'
+		const errorMsg = `Hatch executable not found. Please install Hatch or set "${EXE_CONFIG_KEY}" in your settings.`
 		window.showErrorMessage(errorMsg)
 		throw new Error(errorMsg)
 	}

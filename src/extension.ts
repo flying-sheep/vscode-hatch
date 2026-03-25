@@ -11,7 +11,7 @@ export async function activate(context: ExtensionContext) {
 	context.subscriptions.push(log, registerLogger(log))
 
 	const [hatchExe, api] = await Promise.all([
-		HatchExecutableTracker.create(),
+		HatchExecutableTracker.create(log),
 		getEnvExtApi(),
 	])
 	await setWorkspacePersistentState(context) // resolves instantly
