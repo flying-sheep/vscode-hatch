@@ -22,6 +22,7 @@ TODO
 ## Limitations
 - It’s pretty unclear which environments exist on disk and which don’t
 - We list internal envs that users don’t usually interact with, such as `hatch-uv` and `hatch-build`
+- [Terminal activation is slow](https://github.com/microsoft/vscode-python-environments/issues/1391)
 
 ## Release Notes
 ### 0.0.1
