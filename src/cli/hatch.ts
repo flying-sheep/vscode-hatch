@@ -1,4 +1,4 @@
-import { getHatch, run } from './index.js'
+import { run } from './index.js'
 
 export interface HatchEnvInfo {
 	name: string
@@ -24,8 +24,11 @@ export interface HatchEnvConf {
 	description?: string
 }
 
-export async function getEnvs(projectPath: string): Promise<HatchEnvInfo[]> {
-	const json = await run(await getHatch(), ['env', 'show', '--json'], {
+export async function getEnvs(
+	hatch: string,
+	projectPath: string,
+): Promise<HatchEnvInfo[]> {
+	const json = await run(hatch, ['env', 'show', '--json'], {
 		cwd: projectPath,
 	})
 	const envs = JSON.parse(json) as { [name: string]: HatchEnvConf }
@@ -33,17 +36,18 @@ export async function getEnvs(projectPath: string): Promise<HatchEnvInfo[]> {
 		Object.entries(envs).map(async ([name, conf]) => ({
 			name,
 			conf,
-			path: await findEnv(name, projectPath),
+			path: await findEnv(hatch, name, projectPath),
 			projectPath,
 		})),
 	)
 }
 
 export async function findEnv(
+	hatch: string,
 	name: string,
 	projectPath: string,
 ): Promise<string> {
-	const results = await run(await getHatch(), ['env', 'find', name], {
+	const results = await run(hatch, ['env', 'find', name], {
 		cwd: projectPath,
 	})
 	const [p] = results
@@ -58,6 +62,7 @@ interface CreateEnvOptions {
 }
 
 export async function createEnv(
+	hatch: string,
 	name: string,
 	projectPath: string,
 	{ mode = 'create' }: CreateEnvOptions = {},
@@ -68,14 +73,15 @@ export async function createEnv(
 			: ['env', 'create', name]
 	if (mode === 'ensure')
 		try {
-			await run(await getHatch(), args, { cwd: projectPath })
+			await run(hatch, args, { cwd: projectPath })
 		} catch (_) {}
-	await run(await getHatch(), args, { cwd: projectPath })
+	await run(hatch, args, { cwd: projectPath })
 }
 
 export async function removeEnv(
+	hatch: string,
 	name: string,
 	projectPath: string,
 ): Promise<void> {
-	await run(await getHatch(), ['env', 'remove', name], { cwd: projectPath })
+	await run(hatch, ['env', 'remove', name], { cwd: projectPath })
 }

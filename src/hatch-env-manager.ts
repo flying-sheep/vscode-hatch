@@ -8,11 +8,11 @@ import {
 	window,
 } from 'vscode'
 import * as hatch from './cli/hatch.js'
-import { getHatch } from './cli/index.js'
 import { HATCH_ID, HATCH_MANAGER_ID, HATCH_NAME } from './common/constants.js'
 import { createDeferred, type Deferred } from './common/deferred.js'
 import { traceVerbose } from './common/logging.js'
 import { isWindows } from './common/platform.js'
+import type HatchExecutableTracker from './hatch-exe-tracker.js'
 import {
 	clearExtensionCache,
 	getGlobalEnvId,
@@ -63,15 +63,18 @@ export class HatchEnvManager implements EnvironmentManager {
 
 	constructor(
 		api: PythonEnvironmentApi,
+		hatch: HatchExecutableTracker,
 		public readonly log: LogOutputChannel,
 	) {
 		this.#api = api
+		this.#hatch = hatch
 		this.#globalEnv = undefined
 		this.#activeEnv = new Map()
 		this.#projectToEnvs = new Map()
 	}
 
 	readonly #api: PythonEnvironmentApi
+	readonly #hatch: HatchExecutableTracker
 	#globalEnv: PythonEnvironment | undefined
 	/** Selected environment for each project */
 	#activeEnv: Map<string, PythonEnvironment>
@@ -103,6 +106,7 @@ export class HatchEnvManager implements EnvironmentManager {
 	async remove(environment: PythonEnvironment): Promise<void> {
 		if (!isHatchEnv(environment)) return
 		await hatch.removeEnv(
+			this.#hatch.executable,
 			environment.hatch.name,
 			environment.hatch.projectPath,
 		)
@@ -176,9 +180,14 @@ export class HatchEnvManager implements EnvironmentManager {
 					cancellable: false,
 				}
 				await window.withProgress(opts, () =>
-					hatch.createEnv(environment.hatch.name, projectPath, {
-						mode: 'sync',
-					}),
+					hatch.createEnv(
+						this.#hatch.executable,
+						environment.hatch.name,
+						projectPath,
+						{
+							mode: 'sync',
+						},
+					),
 				)
 			}
 			const oldEnv = this.#activeEnv.get(projectPath)
@@ -339,22 +348,26 @@ export class HatchEnvManager implements EnvironmentManager {
 	}
 
 	async #getHatchEnvs(projectPath: string): Promise<HatchEnvironment[]> {
-		const envs = await hatch.getEnvs(projectPath)
-		const executable = await getHatch()
-		return envs.map((e) => this.#hatch2pythonEnv(executable, e))
+		const envs = await hatch.getEnvs(this.#hatch.executable, projectPath)
+		return envs.map((e) => this.#hatch2pythonEnv(e))
 	}
 
-	#hatch2pythonEnv(
-		executable: string,
-		{ name, path, conf, projectPath }: hatch.HatchEnvInfo,
-	): HatchEnvironment {
+	#hatch2pythonEnv({
+		name,
+		path,
+		conf,
+		projectPath,
+	}: hatch.HatchEnvInfo): HatchEnvironment {
 		const shellActivation: Map<string, PythonCommandRunConfiguration[]> =
 			new Map()
 		const shellDeactivation: Map<string, PythonCommandRunConfiguration[]> =
 			new Map()
 
 		shellActivation.set('unknown', [
-			{ executable, args: [`--env=${name}`, 'shell'] },
+			{
+				executable: this.#hatch.executable,
+				args: [`--env=${name}`, 'shell'],
+			},
 		])
 		shellDeactivation.set('unknown', [{ executable: 'exit' }])
 

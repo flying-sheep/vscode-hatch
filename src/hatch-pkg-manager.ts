@@ -11,7 +11,9 @@ import {
 	uninstallPackages,
 } from './cli/installer.js'
 import { HATCH_ID, HATCH_NAME } from './common/constants.js'
+import { traceVerbose } from './common/logging.js'
 import { isHatchEnv } from './hatch-env-manager.js'
+import type HatchExecutableTracker from './hatch-exe-tracker.js'
 import {
 	type DidChangePackagesEventArgs,
 	type Package,
@@ -34,18 +36,22 @@ export class HatchPackageManager implements PackageManager {
 
 	constructor(
 		api: PythonEnvironmentApi,
+		hatch: HatchExecutableTracker,
 		readonly log: LogOutputChannel,
 	) {
 		this.#api = api
+		this.#hatch = hatch
 		this.#packages = new Map()
 	}
 
 	readonly #api: PythonEnvironmentApi
+	readonly #hatch: HatchExecutableTracker
 	/** Map from environment path to packages */
 	readonly #packages: Map<string, Package[]>
 
 	dispose() {
 		this.#onDidChangePackages.dispose()
+		this.#packages.clear()
 	}
 
 	async manage(
@@ -54,12 +60,21 @@ export class HatchPackageManager implements PackageManager {
 	): Promise<void> {
 		if (!isHatchEnv(environment)) return
 		if (install.length > 0) {
-			await installPackages(environment.hatch, install, {
-				upgrade,
-			})
+			await installPackages(
+				this.#hatch.executable,
+				environment.hatch,
+				install,
+				{
+					upgrade,
+				},
+			)
 		}
 		if (uninstall.length > 0) {
-			await uninstallPackages(environment.hatch, uninstall)
+			await uninstallPackages(
+				this.#hatch.executable,
+				environment.hatch,
+				uninstall,
+			)
 		}
 		await this.refresh(environment)
 	}
@@ -73,7 +88,10 @@ export class HatchPackageManager implements PackageManager {
 			cancellable: false,
 		}
 		const packages = await window.withProgress(opts, async () => {
-			const packages = await listPackages(environment.hatch)
+			const packages = await listPackages(
+				this.#hatch.executable,
+				environment.hatch,
+			)
 			return packages.map(({ name, version }) =>
 				this.#api.createPackageItem(
 					{ name, displayName: name, version },
@@ -107,6 +125,7 @@ export class HatchPackageManager implements PackageManager {
 	}
 
 	async clearCache(): Promise<void> {
+		traceVerbose('Called clearCache')
 		this.#packages.clear()
 	}
 
