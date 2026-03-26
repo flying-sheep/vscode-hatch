@@ -55,7 +55,7 @@
 		"watch": "tsc -watch -p ./",
 		"lint": "$npm_execpath run lint:check && $npm_execpath run lint:deps",
 		"lint:check": "biome check --write .",
-		"lint:deps": "depcheck --ignores='vscode,@vscode/test-electron,@types/mocha,@secretlint/*'",
+		"lint:deps": "depcheck --ignores='vscode,@vscode/test-electron,@types/mocha,@secretlint/*,isexe'",
 		"pretest": "$npm_execpath run compile && $npm_execpath run lint",
 		"test": "vscode-test",
 		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run compile",
