@@ -2356,6 +2356,7 @@ __metadata:
     "@vscode/vsce": "npm:^3.7.1"
     depcheck: "npm:^1.4.7"
     husky: "npm:^9.1.7"
+    isexe: "npm:^4.0.0"
     lint-staged: "npm:^16.4.0"
     typescript: "npm:^6.0.2"
     untildify: "npm:^6.0.0"

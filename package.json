@@ -2,7 +2,7 @@
 	"name": "hatch",
 	"displayName": "Hatch",
 	"description": "Manage Hatch environments",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"license": "GPL-3.0",
 	"type": "module",
 	"engines": {
@@ -55,7 +55,7 @@
 		"watch": "tsc -watch -p ./",
 		"lint": "$npm_execpath run lint:check && $npm_execpath run lint:deps",
 		"lint:check": "biome check --write .",
-		"lint:deps": "depcheck --ignores='vscode,@vscode/test-electron,@types/mocha,@secretlint/*'",
+		"lint:deps": "depcheck --ignores='vscode,@vscode/test-electron,@types/mocha,@secretlint/*,isexe'",
 		"pretest": "$npm_execpath run compile && $npm_execpath run lint",
 		"test": "vscode-test",
 		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run compile",
@@ -83,6 +83,7 @@
 	},
 	"packageManager": "yarn@4.13.0",
 	"dependencies": {
+		"isexe": "^4.0.0",
 		"untildify": "^6.0.0",
 		"which": "^6.0.1"
 	}
