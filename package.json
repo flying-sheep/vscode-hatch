@@ -51,14 +51,14 @@
 	"scripts": {
 		"postinstall": "$npm_execpath run husky && $npm_execpath run sync",
 		"sync": "curl -sf -o src/vscode-python-environments/index.ts -L \"https://github.com/microsoft/vscode-python-environments/raw/refs/heads/main/src/api.ts\"",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
+		"build": "rolldown -c",
+		"watch": "rolldown -cw",
 		"lint": "$npm_execpath run lint:check && $npm_execpath run lint:deps",
 		"lint:check": "biome check --write .",
 		"lint:deps": "depcheck --ignores='vscode,@vscode/test-electron,@types/mocha,@secretlint/*,isexe'",
-		"pretest": "$npm_execpath run compile && $npm_execpath run lint",
+		"pretest": "$npm_execpath run build && $npm_execpath run lint",
 		"test": "vscode-test",
-		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run compile",
+		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run build",
 		"vsce-package": "vsce package --yarn --follow-symlinks -o flying-sheep.hatch.vsix"
 	},
 	"lint-staged": {
@@ -66,9 +66,11 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.8",
+		"@rollup/plugin-swc": "^0.4.0",
 		"@secretlint/secretlint-formatter-sarif": "^11.4.0",
 		"@secretlint/secretlint-rule-no-dotenv": "^11.4.0",
 		"@secretlint/secretlint-rule-preset-recommend": "^11.4.0",
+		"@swc/core": "^1.15.21",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "25.x",
 		"@types/vscode": "1.99.1",
@@ -79,11 +81,11 @@
 		"depcheck": "^1.4.7",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
+		"rolldown": "^1.0.0-rc.12",
 		"typescript": "^6.0.2"
 	},
 	"packageManager": "yarn@4.13.0",
 	"dependencies": {
-		"isexe": "^4.0.0",
 		"untildify": "^6.0.0",
 		"which": "^6.0.1"
 	}
