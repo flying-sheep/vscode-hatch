@@ -21,7 +21,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: yarn
       - run: yarn install --immutable
-      - run: yarn run lint
+      - run: yarn lint
+      - run: yarn test
       - run: yarn vsce-package
   check:
     if: always()
