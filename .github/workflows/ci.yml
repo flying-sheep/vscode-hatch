@@ -22,7 +22,7 @@ jobs:
           cache: yarn
       - run: yarn install --immutable
       - run: yarn lint
-      - run: yarn test
+      - run: xvfb-run -a yarn test
       - run: yarn vsce-package
   check:
     if: always()
