@@ -16,7 +16,7 @@
 		"url": "https://github.com/flying-sheep/hatch-code.git"
 	},
 	"publisher": "flying-sheep",
-	"icon": "./assets/logo.png",
+	"icon": "./assets/logo.webp",
 	"extensionDependencies": [
 		"ms-python.vscode-python-envs"
 	],
@@ -59,7 +59,7 @@
 		"pretest": "$npm_execpath run build && $npm_execpath run lint",
 		"test": "vscode-test",
 		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run build",
-		"vsce-package": "vsce package --yarn --follow-symlinks -o flying-sheep.hatch.vsix"
+		"vsce-package": "vsce package --yarn --no-dependencies -o flying-sheep.hatch.vsix"
 	},
 	"lint-staged": {
 		"*": "biome check --no-errors-on-unmatched --files-ignore-unknown=true --write"
