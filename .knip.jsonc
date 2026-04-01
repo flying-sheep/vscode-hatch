@@ -1,0 +1,10 @@
+{
+	"$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+	"entry": ["src/extension.ts", "*.ts", ".*.mjs", "src/test/**/*.test.ts"],
+	"ignore": [".yarn/**/*"],
+	"ignoreDependencies": [
+		"@secretlint/*", // https://github.com/microsoft/vscode-vsce/issues/1156
+		"@vscode/test-electron", // used by vscode-test
+		"esbuild*", // used in .vscode-test.mjs to load tests
+	],
+}

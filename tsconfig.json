@@ -12,7 +12,7 @@
 		"noFallthroughCasesInSwitch": true,
 		"noUnusedParameters": true,
 		"noPropertyAccessFromIndexSignature": true,
-		"types": ["node"],
+		"types": ["node", "mocha"],
 	},
-	"include": ["src", "*.ts"],
+	"include": ["src", "*.ts", "*.mjs"],
 }

@@ -36,22 +36,29 @@ export function registerLogger(logChannel: LogOutputChannel): Disposable {
 	}
 }
 
+// these @public tags are to make knip not flag unused functions
+
+/** @public */
 export function traceLog(...args: Arguments): void {
 	channel?.traceLog(...args)
 }
 
+/** @public */
 export function traceError(...args: Arguments): void {
 	channel?.traceError(...args)
 }
 
+/** @public */
 export function traceWarn(...args: Arguments): void {
 	channel?.traceWarn(...args)
 }
 
+/** @public */
 export function traceInfo(...args: Arguments): void {
 	channel?.traceInfo(...args)
 }
 
+/** @public */
 export function traceVerbose(...args: Arguments): void {
 	channel?.traceVerbose(...args)
 }
