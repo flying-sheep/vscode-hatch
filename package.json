@@ -67,11 +67,11 @@
 		"*": "biome check --no-errors-on-unmatched --files-ignore-unknown=true --write"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.8",
+		"@biomejs/biome": "^2.4.10",
 		"@rollup/plugin-swc": "^0.4.0",
-		"@secretlint/secretlint-formatter-sarif": "^11.4.0",
-		"@secretlint/secretlint-rule-no-dotenv": "^11.4.0",
-		"@secretlint/secretlint-rule-preset-recommend": "^11.4.0",
+		"@secretlint/secretlint-formatter-sarif": "^11.4.1",
+		"@secretlint/secretlint-rule-no-dotenv": "^11.4.1",
+		"@secretlint/secretlint-rule-preset-recommend": "^11.4.1",
 		"@swc/core": "^1.15.21",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "25.x",
