@@ -8,7 +8,7 @@ import type {
 	EnvironmentManager,
 	PythonEnvironmentApi,
 } from '../vscode-python-environments'
-import { waitForCondition } from './test-utils'
+import { tmpdir, waitForCondition } from './test-utils'
 
 const getExtApi = (() => {
 	const apis: {
@@ -65,10 +65,10 @@ describe('Env Manager', () => {
 	})
 
 	it('should return environments', async () => {
-		const uri = vscode.Uri.file(await fs.mkdtemp('hatch-'))
-		api.addPythonProject({ name: 'test', uri })
-		await envManager.refresh(uri)
-		const envs = await envManager.getEnvironments(uri)
+		await using dir = await tmpdir('hatch-')
+		api.addPythonProject({ name: 'test', uri: dir.uri })
+		await envManager.refresh(dir.uri)
+		const envs = await envManager.getEnvironments(dir.uri)
 		assert.ok(envs.length > 0, 'No environments found')
 	})
 })

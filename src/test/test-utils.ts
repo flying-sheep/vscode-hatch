@@ -1,3 +1,8 @@
+import { mkdtemp, rm } from 'node:fs/promises'
+import * as os from 'node:os'
+import * as path from 'node:path'
+import * as vscode from 'vscode'
+
 /**
  * Wait for a condition to become true within a timeout.
  *
@@ -59,4 +64,17 @@ export async function waitForCondition(
 
 		checkCondition()
 	})
+}
+
+// similar to fs.mkdtempDisposable but for node<24
+export async function tmpdir(
+	prefix: string,
+): Promise<{ uri: vscode.Uri } & AsyncDisposable> {
+	const dir = await mkdtemp(path.join(os.tmpdir(), prefix))
+	return {
+		uri: vscode.Uri.file(dir),
+		async [Symbol.asyncDispose]() {
+			await rm(dir, { recursive: true })
+		},
+	}
 }
