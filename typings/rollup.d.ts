@@ -1,3 +1,4 @@
 declare module 'rollup' {
-	export { Plugin } from 'rolldown'
+	// imported by `@rollup/plugin-swc`
+	export type { Plugin } from 'rolldown'
 }
