@@ -1,3 +1,5 @@
+.claude/**
+.github/**
 .vscode/**
 .vscode-test/**
 .husky/**
@@ -5,7 +7,9 @@
 assets/*.fig
 src/**
 .gitignore
-.yarnrc
+*.yaml
+*.yml
+*.jsonc
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/*.map

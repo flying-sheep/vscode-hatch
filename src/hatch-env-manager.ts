@@ -35,7 +35,7 @@ import {
 	type SetEnvironmentScope,
 } from './vscode-python-environments/index.js'
 
-export interface HatchEnvironment extends PythonEnvironment {
+interface HatchEnvironment extends PythonEnvironment {
 	hatch: HatchEnvInfo
 }
 
@@ -388,7 +388,7 @@ export class HatchEnvManager implements EnvironmentManager {
 	}
 }
 
-export function envBin(envPath: string, name: string): string {
+function envBin(envPath: string, name: string): string {
 	return isWindows()
 		? paths.join(envPath, 'Scripts', `${name}.exe`)
 		: paths.join(envPath, 'bin', name)

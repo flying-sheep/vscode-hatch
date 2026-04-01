@@ -6,7 +6,6 @@
 		{
 			"type": "npm",
 			"script": "watch",
-			"problemMatcher": "$tsc-watch",
 			"isBackground": true,
 			"presentation": {
 				"reveal": "never",
@@ -14,6 +13,21 @@
 			"group": {
 				"kind": "build",
 				"isDefault": true,
+			},
+			"problemMatcher": {
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "Found.*changed, rebuilding",
+					"endsPattern": "✔ Rebuilt.*",
+				},
+				"pattern": [
+					{
+						"regexp": "^(\\[[^\\\\n]+)\\\\n[^\\[]+\\[\\\\s*([^:]+):(\\\\d+:\\\\d+).*",
+						"message": 1,
+						"file": 2,
+						"location": 3,
+					},
+				],
 			},
 		},
 	],

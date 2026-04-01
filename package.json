@@ -16,7 +16,7 @@
 		"url": "https://github.com/flying-sheep/hatch-code.git"
 	},
 	"publisher": "flying-sheep",
-	"icon": "./assets/logo.png",
+	"icon": "./assets/logo.webp",
 	"extensionDependencies": [
 		"ms-python.vscode-python-envs"
 	],
@@ -49,26 +49,31 @@
 	},
 	"main": "./dist/flying-sheep.hatch/extension.js",
 	"scripts": {
-		"postinstall": "$npm_execpath run husky && $npm_execpath run sync",
+		"postinstall": "concurrently -c auto -n husky,sync \"$npm_execpath postinstall:husky\" \"$npm_execpath sync\"",
+		"postinstall:husky": "husky",
 		"sync": "curl -sf -o src/vscode-python-environments/index.ts -L \"https://github.com/microsoft/vscode-python-environments/raw/refs/heads/main/src/api.ts\"",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"lint": "$npm_execpath run lint:check && $npm_execpath run lint:deps",
+		"build": "rolldown -c",
+		"watch": "rolldown -cw",
+		"lint": "concurrently -c auto -n types,check,deps \"$npm_execpath lint:types\" \"$npm_execpath lint:check\" \"$npm_execpath lint:deps\"",
+		"lint:types": "tsc --noEmit",
 		"lint:check": "biome check --write .",
-		"lint:deps": "depcheck --ignores='vscode,@vscode/test-electron,@types/mocha,@secretlint/*,isexe'",
-		"pretest": "$npm_execpath run compile && $npm_execpath run lint",
+		"lint:deps": "knip --use-tsconfig-files",
+		"pretest": "$npm_execpath run build && $npm_execpath run lint",
 		"test": "vscode-test",
-		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run compile",
-		"vsce-package": "vsce package --yarn --follow-symlinks -o flying-sheep.hatch.vsix"
+		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run build",
+		"vsce-package": "vsce package --yarn --no-dependencies -o flying-sheep.hatch.vsix"
 	},
 	"lint-staged": {
 		"*": "biome check --no-errors-on-unmatched --files-ignore-unknown=true --write"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.10",
+		"@rollup/plugin-swc": "^0.4.0",
 		"@secretlint/secretlint-formatter-sarif": "^11.4.1",
 		"@secretlint/secretlint-rule-no-dotenv": "^11.4.1",
 		"@secretlint/secretlint-rule-preset-recommend": "^11.4.1",
+		"@swc-node/register": "^1.11.1",
+		"@swc/core": "^1.15.21",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "25.x",
 		"@types/vscode": "1.99.1",
@@ -76,14 +81,15 @@
 		"@vscode/test-cli": "^0.0.12",
 		"@vscode/test-electron": "^2.5.2",
 		"@vscode/vsce": "^3.7.1",
-		"depcheck": "^1.4.7",
+		"concurrently": "^9.2.1",
 		"husky": "^9.1.7",
+		"knip": "^6.1.1",
 		"lint-staged": "^16.4.0",
+		"rolldown": "^1.0.0-rc.12",
 		"typescript": "^6.0.2"
 	},
 	"packageManager": "yarn@4.13.0",
 	"dependencies": {
-		"isexe": "^4.0.0",
 		"untildify": "^6.0.0",
 		"which": "^6.0.1"
 	}

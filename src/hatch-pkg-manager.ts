@@ -5,7 +5,7 @@ import {
 	ThemeIcon,
 	window,
 } from 'vscode'
-import type HatchExecutableTracker from './cli/index.js'
+import type { HatchExecutableTracker } from './cli/index.js'
 import { HATCH_ID, HATCH_NAME } from './common/constants.js'
 import { traceVerbose } from './common/logging.js'
 import { isHatchEnv } from './hatch-env-manager.js'

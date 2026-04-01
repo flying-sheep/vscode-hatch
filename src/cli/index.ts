@@ -132,5 +132,3 @@ async function getHatch(): Promise<string> {
 	}
 	return path
 }
-
-export default HatchExecutableTracker
