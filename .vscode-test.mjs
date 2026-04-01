@@ -5,5 +5,6 @@ export default defineConfig({
 	mocha: {
 		// TODO: replace with @oxc-node/core/register when its supports decorators
 		require: '@swc-node/register',
+		failZero: true,
 	},
 })
