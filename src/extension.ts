@@ -6,7 +6,12 @@ import { HatchEnvManager } from './hatch-env-manager.js'
 import { HatchPackageManager } from './hatch-pkg-manager.js'
 import { getEnvExtApi } from './python-envs-api.js'
 
-export async function activate(context: ExtensionContext) {
+export interface Api {
+	envManager: HatchEnvManager
+	pkgManager: HatchPackageManager
+}
+
+export async function activate(context: ExtensionContext): Promise<Api> {
 	const log = window.createOutputChannel('Hatch', { log: true })
 	context.subscriptions.push(log, registerLogger(log))
 
@@ -22,6 +27,11 @@ export async function activate(context: ExtensionContext) {
 		api.registerEnvironmentManager(envManager),
 		api.registerPackageManager(pkgManager),
 	)
+
+	return {
+		envManager,
+		pkgManager,
+	}
 }
 
 export function deactivate() {}
