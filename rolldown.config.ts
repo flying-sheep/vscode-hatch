@@ -14,6 +14,7 @@ export default defineConfig({
 	platform: 'node',
 	plugins: [
 		// https://github.com/oxc-project/oxc/issues/9170
+		// TODO: also replace @swc-node/register in .vscode-test.mjs
 		withFilter(
 			swc({
 				swc: {
