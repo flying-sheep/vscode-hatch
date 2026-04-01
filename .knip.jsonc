@@ -5,6 +5,6 @@
 	"ignoreDependencies": [
 		"@secretlint/*", // https://github.com/microsoft/vscode-vsce/issues/1156
 		"@vscode/test-electron", // used by vscode-test
-		"esbuild*", // used in .vscode-test.mjs to load tests
+		"@swc-node/register", // used in .vscode-test.mjs to load tests
 	],
 }
