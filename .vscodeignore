@@ -7,9 +7,9 @@
 assets/*.fig
 src/**
 .gitignore
-.pre-commit-config.yaml
-.yarnrc.yml
-biome.jsonc
+*.yaml
+*.yml
+*.jsonc
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/*.map
