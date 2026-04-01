@@ -58,8 +58,7 @@
 		"lint:types": "tsc --noEmit",
 		"lint:check": "biome check --write .",
 		"lint:deps": "knip --use-tsconfig-files",
-		"pretest": "$npm_execpath run build && $npm_execpath run lint",
-		"test": "vscode-test",
+		"test": "$npm_execpath run build && vscode-test",
 		"vscode:prepublish": "$npm_execpath run sync && $npm_execpath run build",
 		"vsce-package": "vsce package --yarn --no-dependencies -o flying-sheep.hatch.vsix"
 	},

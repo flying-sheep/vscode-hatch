@@ -1,5 +1,4 @@
 import * as assert from 'node:assert'
-import * as fs from 'node:fs/promises'
 import { suiteSetup } from 'mocha'
 import * as vscode from 'vscode'
 import { ENVS_EXT_ID, EXTENSION_ID } from '../common/constants'
