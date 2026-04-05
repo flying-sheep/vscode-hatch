@@ -14,5 +14,5 @@
 		"noPropertyAccessFromIndexSignature": true,
 		"types": ["node", "mocha"],
 	},
-	"include": ["src", "*.ts", "*.mjs"],
+	"include": ["src", "*.ts", "*.mjs", "test"],
 }

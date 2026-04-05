@@ -1,12 +1,13 @@
 import * as assert from 'node:assert'
-import { suiteSetup } from 'mocha'
+import { before, beforeEach } from 'mocha'
 import * as vscode from 'vscode'
-import { ENVS_EXT_ID, EXTENSION_ID } from '../common/constants'
-import type * as extension from '../extension'
+import type { ExecFile } from '../src/cli/exec-file'
+import { ENVS_EXT_ID, EXTENSION_ID } from '../src/common/constants'
+import type * as extension from '../src/extension'
 import type {
 	EnvironmentManager,
 	PythonEnvironmentApi,
-} from '../vscode-python-environments'
+} from '../src/vscode-python-environments'
 import { tmpdir, waitForCondition } from './test-utils'
 
 const getExtApi = (() => {
@@ -53,21 +54,43 @@ const getExtApi = (() => {
 describe('Env Manager', () => {
 	vscode.window.showInformationMessage('Start all tests.')
 
+	const m = new Map<string, string>()
+	const exec: ExecFile = async (executable, args, opts) => {
+		assert.equal(executable, 'IDoNotExistButWeReplaceExecFile')
+		assert.ok(opts?.cwd)
+		const r = m.get(JSON.stringify(args))
+		assert.ok(r, `Command not found: ${JSON.stringify(args)}`)
+		return { stdout: r, stderr: '' }
+	}
+
+	beforeEach(() => m.clear())
+
 	let api: PythonEnvironmentApi
 	let envManager: EnvironmentManager
-	suiteSetup(async function () {
+	before(async function () {
 		this.timeout(50_000)
 		api = await getExtApi(ENVS_EXT_ID, 20_000)
 		assert.ok(api, 'Evironments extension API not available')
-		envManager = (await getExtApi(EXTENSION_ID, 20_000)).envManager
-		assert.ok(envManager, 'Hatch extension API not available')
+		const ext = await getExtApi(EXTENSION_ID, 20_000)
+		assert.ok(ext.envManager, 'Hatch extension API not available')
+		ext.exe.exec = exec
+		envManager = ext.envManager
 	})
 
 	it('should return environments', async () => {
 		await using dir = await tmpdir('hatch-')
 		api.addPythonProject({ name: 'test', uri: dir.uri })
+
+		m.set(
+			JSON.stringify(['env', 'show', '--json']),
+			JSON.stringify({ mockenv: { type: 'virtual' } }),
+		)
+		m.set(JSON.stringify(['env', 'find', 'mockenv']), 'mockpath\n')
 		await envManager.refresh(dir.uri)
 		const envs = await envManager.getEnvironments(dir.uri)
+
 		assert.ok(envs.length > 0, 'No environments found')
+		assert.equal(envs[0].name, 'mockenv')
+		assert.equal(envs[0].sysPrefix, 'mockpath')
 	})
 })

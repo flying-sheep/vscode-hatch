@@ -9,7 +9,7 @@ import {
 } from 'vscode'
 import which from 'which'
 import { traceError } from '../common/logging.js'
-import execFile from './exec-file.js'
+import execFile, { type ExecFile } from './exec-file.js'
 import type { CreateEnvOptions, HatchEnvInfo } from './hatch.js'
 import Hatch from './hatch.js'
 import Installer, { type InstallOptions } from './installer.js'
@@ -53,7 +53,7 @@ export class HatchExecutableTracker {
 	private constructor(
 		executable: string,
 		readonly log: LogOutputChannel,
-		public exec: typeof execFile = execFile,
+		public exec: ExecFile = execFile,
 	) {
 		this.#executable = executable
 		this.#configChangeListener = workspace.onDidChangeConfiguration((e) =>
@@ -63,7 +63,7 @@ export class HatchExecutableTracker {
 
 	static async create(
 		log: LogOutputChannel,
-		exec?: typeof execFile | undefined,
+		exec?: ExecFile | undefined,
 	): Promise<HatchExecutableTracker> {
 		const executable = await getHatch()
 		return new HatchExecutableTracker(executable, log, exec)

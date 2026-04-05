@@ -1,4 +1,4 @@
-import execFile from './exec-file.js'
+import execFile, { type ExecFile } from './exec-file.js'
 import type { HatchEnvInfo } from './hatch.js'
 
 export interface InstallOptions {
@@ -7,8 +7,8 @@ export interface InstallOptions {
 
 export default class Installer {
 	#hatch: string
-	#exec: typeof execFile
-	constructor(hatch: string, exec: typeof execFile = execFile) {
+	#exec: ExecFile
+	constructor(hatch: string, exec: ExecFile = execFile) {
 		this.#hatch = hatch
 		this.#exec = exec
 	}

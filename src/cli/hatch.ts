@@ -1,4 +1,4 @@
-import execFile from './exec-file.js'
+import execFile, { type ExecFile } from './exec-file.js'
 
 export interface HatchEnvInfo {
 	name: string
@@ -30,8 +30,8 @@ export interface CreateEnvOptions {
 
 export default class Hatch {
 	#hatch: string
-	#exec: typeof execFile
-	constructor(hatch: string, exec: typeof execFile = execFile) {
+	#exec: ExecFile
+	constructor(hatch: string, exec: ExecFile = execFile) {
 		this.#hatch = hatch
 		this.#exec = exec
 	}
