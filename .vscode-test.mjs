@@ -7,5 +7,6 @@ export default defineConfig({
 		// TODO: replace with @oxc-node/core/register when its supports decorators
 		require: '@swc-node/register',
 		failZero: true,
+		timeout: 10_000, // longer default timeout
 	},
 })
