@@ -9,9 +9,10 @@ import {
 } from 'vscode'
 import which from 'which'
 import { traceError } from '../common/logging.js'
-import type { HatchEnvInfo } from './hatch.js'
-import * as hatch from './hatch.js'
-import * as installer from './installer.js'
+import execFile from './exec-file.js'
+import type { CreateEnvOptions, HatchEnvInfo } from './hatch.js'
+import Hatch from './hatch.js'
+import Installer, { type InstallOptions } from './installer.js'
 
 export type { HatchEnvInfo }
 
@@ -47,9 +48,12 @@ function suggestExeConfig<
 }
 
 export class HatchExecutableTracker {
+	#executable: string
+	#configChangeListener: Disposable
 	private constructor(
 		executable: string,
 		readonly log: LogOutputChannel,
+		public exec: typeof execFile = execFile,
 	) {
 		this.#executable = executable
 		this.#configChangeListener = workspace.onDidChangeConfiguration((e) =>
@@ -59,16 +63,22 @@ export class HatchExecutableTracker {
 
 	static async create(
 		log: LogOutputChannel,
+		exec?: typeof execFile | undefined,
 	): Promise<HatchExecutableTracker> {
 		const executable = await getHatch()
-		return new HatchExecutableTracker(executable, log)
+		return new HatchExecutableTracker(executable, log, exec)
 	}
-
-	#executable: string
-	#configChangeListener: Disposable
 
 	get executable(): string {
 		return this.#executable
+	}
+
+	get #hatch(): Hatch {
+		return new Hatch(this.#executable, this.exec)
+	}
+
+	get #inst(): Installer {
+		return new Installer(this.#executable, this.exec)
 	}
 
 	async #handleConfigChange(e: ConfigurationChangeEvent): Promise<void> {
@@ -83,38 +93,38 @@ export class HatchExecutableTracker {
 
 	@suggestExeConfig
 	getEnvs(projectPath: string): Promise<HatchEnvInfo[]> {
-		return hatch.getEnvs(this.#executable, projectPath)
+		return this.#hatch.getEnvs(projectPath)
 	}
 	@suggestExeConfig
 	findEnv(env: HatchEnvInfo): Promise<string> {
-		return hatch.findEnv(this.#executable, env)
+		return this.#hatch.findEnv(env)
 	}
 	@suggestExeConfig
 	removeEnv(env: HatchEnvInfo): Promise<void> {
-		return hatch.removeEnv(this.#executable, env)
+		return this.#hatch.removeEnv(env)
 	}
 	@suggestExeConfig
-	createEnv(env: HatchEnvInfo, opts?: hatch.CreateEnvOptions): Promise<void> {
-		return hatch.createEnv(this.#executable, env, opts)
+	createEnv(env: HatchEnvInfo, opts?: CreateEnvOptions): Promise<void> {
+		return this.#hatch.createEnv(env, opts)
 	}
 
 	@suggestExeConfig
 	listPackages(
 		env: HatchEnvInfo,
 	): Promise<{ name: string; version: string }[]> {
-		return installer.listPackages(this.#executable, env)
+		return this.#inst.listPackages(env)
 	}
 	@suggestExeConfig
 	installPackages(
 		env: HatchEnvInfo,
 		packages: string[],
-		opts: installer.InstallOptions = {},
+		opts: InstallOptions = {},
 	): Promise<void> {
-		return installer.installPackages(this.#executable, env, packages, opts)
+		return this.#inst.installPackages(env, packages, opts)
 	}
 	@suggestExeConfig
 	uninstallPackages(env: HatchEnvInfo, packages: string[]): Promise<void> {
-		return installer.uninstallPackages(this.#executable, env, packages)
+		return this.#inst.uninstallPackages(env, packages)
 	}
 }
 
