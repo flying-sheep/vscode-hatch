@@ -48,5 +48,15 @@
 				},
 			},
 		},
+		{
+			"includes": ["**/*.test.ts"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"useImportExtensions": "off",
+					},
+				},
+			},
+		},
 	],
 }

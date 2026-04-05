@@ -5,6 +5,7 @@
 		"target": "ES2022",
 		"lib": ["ES2022"],
 		"resolveJsonModule": true,
+		"esModuleInterop": true,
 		"sourceMap": true,
 		"typeRoots": ["./node_modules/@types", "./typings"],
 		"strict": true,
@@ -14,5 +15,5 @@
 		"noPropertyAccessFromIndexSignature": true,
 		"types": ["node", "mocha"],
 	},
-	"include": ["src", "*.ts", "*.mjs"],
+	"include": ["src", "*.ts", "*.mjs", "test"],
 }
