@@ -1,7 +1,6 @@
 import * as assert from 'node:assert'
 import { before, beforeEach } from 'mocha'
 import * as vscode from 'vscode'
-import type { ExecFile } from '../src/cli/exec-file'
 import { ENVS_EXT_ID, EXTENSION_ID } from '../src/common/constants'
 import type * as extension from '../src/extension'
 import type {
