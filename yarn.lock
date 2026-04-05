@@ -1815,6 +1815,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"callable-instance@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "callable-instance@npm:2.0.0"
+  checksum: 10/2a36f30cb88b0c6b0989e4c23bdfa351bd6fc4d782996506b5d7bf276da7d30b24d714dc847ca9c7852f514baca1cbf2cbb431967c45021e54483da1f7c5cb73
+  languageName: node
+  linkType: hard
+
 "camelcase@npm:^6.0.0":
   version: 6.3.0
   resolution: "camelcase@npm:6.3.0"
@@ -2765,6 +2772,7 @@ __metadata:
     "@vscode/test-cli": "npm:^0.0.12"
     "@vscode/test-electron": "npm:^2.5.2"
     "@vscode/vsce": "npm:^3.7.1"
+    callable-instance: "npm:^2.0.0"
     concurrently: "npm:^9.2.1"
     husky: "npm:^9.1.7"
     knip: "npm:^6.1.1"

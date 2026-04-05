@@ -8,6 +8,7 @@ import type {
 	EnvironmentManager,
 	PythonEnvironmentApi,
 } from '../src/vscode-python-environments'
+import MockExec from './mock-exec'
 import { tmpdir, waitForCondition } from './test-utils'
 
 const getExtApi = (() => {
@@ -54,16 +55,8 @@ const getExtApi = (() => {
 describe('Env Manager', () => {
 	vscode.window.showInformationMessage('Start all tests.')
 
-	const m = new Map<string, string>()
-	const exec: ExecFile = async (executable, args, opts) => {
-		assert.equal(executable, 'IDoNotExistButWeReplaceExecFile')
-		assert.ok(opts?.cwd)
-		const r = m.get(JSON.stringify(args))
-		assert.ok(r, `Command not found: ${JSON.stringify(args)}`)
-		return { stdout: r, stderr: '' }
-	}
-
-	beforeEach(() => m.clear())
+	const exec = new MockExec('IDoNotExistButWeReplaceExecFile')
+	beforeEach(() => exec.reset())
 
 	let api: PythonEnvironmentApi
 	let envManager: EnvironmentManager
@@ -81,12 +74,11 @@ describe('Env Manager', () => {
 		await using dir = await tmpdir('hatch-')
 		api.addPythonProject({ name: 'test', uri: dir.uri })
 
-		m.set(
-			JSON.stringify(['env', 'show', '--json']),
-			JSON.stringify({ mockenv: { type: 'virtual' } }),
+		exec.reset(
+			[['env', 'show', '--json'], { mockenv: { type: 'virtual' } }],
+			[['env', 'find', 'mockenv'], 'mockpath\n'],
 		)
-		m.set(JSON.stringify(['env', 'find', 'mockenv']), 'mockpath\n')
-		await envManager.refresh(dir.uri)
+		//This gets called automatically: await envManager.refresh(dir.uri)
 		const envs = await envManager.getEnvironments(dir.uri)
 
 		assert.ok(envs.length > 0, 'No environments found')

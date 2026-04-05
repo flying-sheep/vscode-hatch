@@ -80,6 +80,7 @@
 		"@vscode/test-cli": "^0.0.12",
 		"@vscode/test-electron": "^2.5.2",
 		"@vscode/vsce": "^3.7.1",
+		"callable-instance": "^2.0.0",
 		"concurrently": "^9.2.1",
 		"husky": "^9.1.7",
 		"knip": "^6.1.1",
