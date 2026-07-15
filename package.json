@@ -93,7 +93,7 @@
 		"callable-instance": "^2.0.0",
 		"concurrently": "^10.0.3",
 		"husky": "^9.1.7",
-		"knip": "^6.23.0",
+		"knip": "^6.25.0",
 		"lint-staged": "^17.0.8",
 		"mocha": "^11.7.6",
 		"rolldown": "^1.1.4",
