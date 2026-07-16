@@ -2755,7 +2755,7 @@ __metadata:
     callable-instance: "npm:^2.0.0"
     concurrently: "npm:^10.0.3"
     husky: "npm:^9.1.7"
-    knip: "npm:^6.23.0"
+    knip: "npm:^6.25.0"
     lint-staged: "npm:^17.0.8"
     mocha: "npm:^11.7.6"
     rolldown: "npm:^1.1.5"
@@ -3249,9 +3249,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knip@npm:^6.23.0":
-  version: 6.23.0
-  resolution: "knip@npm:6.23.0"
+"knip@npm:^6.25.0":
+  version: 6.25.0
+  resolution: "knip@npm:6.25.0"
   dependencies:
     fdir: "npm:^6.5.0"
     formatly: "npm:^0.3.0"
@@ -3269,7 +3269,7 @@ __metadata:
   bin:
     knip: bin/knip.js
     knip-bun: bin/knip-bun.js
-  checksum: 10/ba57fdac1db20ee21d248a1fdeda7e9e7cf96ee7a3c7274cb6ff27bf964df037e6fd467cf101118051a72e820bc9af23be7dd9bcf9ccd682d97ce0fe379332ed
+  checksum: 10/126a3333cf0a1dc716df6e01abbf0b334a86089af3c44f11bd183b7976e8d754d54f05142ba82544f6857acfe45cca53c25f0bec277a9ad2ccb04c892d09c7c4
   languageName: node
   linkType: hard
 
