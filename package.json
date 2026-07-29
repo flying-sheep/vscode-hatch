@@ -78,9 +78,9 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.4",
 		"@rollup/plugin-swc": "^0.4.1",
-		"@secretlint/secretlint-formatter-sarif": "^13.0.2",
-		"@secretlint/secretlint-rule-no-dotenv": "^13.0.2",
-		"@secretlint/secretlint-rule-preset-recommend": "^13.0.2",
+		"@secretlint/secretlint-formatter-sarif": "^13.0.4",
+		"@secretlint/secretlint-rule-no-dotenv": "^13.0.4",
+		"@secretlint/secretlint-rule-preset-recommend": "^13.0.4",
 		"@swc-node/register": "^1.11.1",
 		"@swc/core": "^1.15.43",
 		"@types/mocha": "^10.0.10",
